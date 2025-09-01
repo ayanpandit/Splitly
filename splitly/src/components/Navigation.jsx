@@ -1,61 +1,73 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Bell, Users, Home, X, Eye, EyeOff, Edit2 } from 'lucide-react';
+import { Bell, Users, Home, X, Eye, EyeOff, Edit2, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import AuthModal from './AuthModal';
 
 const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, signOut, updatePassword } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: 'Ayan Pandit',
-    email: 'ayan.pandit@example.com',
-    password: 'mypassword123'
-  });
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [editMode, setEditMode] = useState({
-    name: false,
-    email: false,
-    password: false
-  });
-  const [tempData, setTempData] = useState({ ...profileData });
+  const [editMode, setEditMode] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const navItems = [
+  // Show appropriate nav items based on auth status
+  const navItems = user ? [
     { path: '/', label: 'Home', icon: Home },
     { path: '/groups', label: 'Groups', icon: Users },
-  ];
+  ] : [];
 
   const isActive = (path) => location.pathname === path;
 
-  const handleEditToggle = (field) => {
-    if (editMode[field]) {
-      // Save changes
-      setProfileData(prev => ({
-        ...prev,
-        [field]: tempData[field]
-      }));
-    } else {
-      // Start editing
-      setTempData({ ...profileData });
+  const handlePasswordUpdate = async () => {
+    if (!newPassword) {
+      setPasswordError('Password is required');
+      return;
     }
-    setEditMode(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
+    
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+
+    setIsUpdating(true);
+    const result = await updatePassword(newPassword);
+    
+    if (result.error) {
+      setPasswordError(result.error.message);
+    } else {
+      setEditMode(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      setPasswordError('');
+      alert('Password updated successfully!');
+    }
+    
+    setIsUpdating(false);
   };
 
-  const handleCancel = (field) => {
-    setEditMode(prev => ({
-      ...prev,
-      [field]: false
-    }));
-    setTempData({ ...profileData });
+  const handleSignOut = async () => {
+    await signOut();
+    setShowProfile(false);
+    navigate('/');
   };
 
-  const handleInputChange = (field, value) => {
-    setTempData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const resetPasswordForm = () => {
+    setEditMode(false);
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordError('');
   };
 
   return (
@@ -96,50 +108,80 @@ const Navigation = () => {
 
             {/* Right Section */}
             <div className="flex items-center space-x-4">
-              <button className="p-2 text-gray-500 hover:text-white transition-colors">
-                <Bell className="h-5 w-5" />
-              </button>
-              <button 
-                onClick={() => setShowProfile(true)}
-                className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center hover:scale-105 transition-transform"
-              >
-                <span className="text-sm font-medium text-white">
-                  {profileData.name.charAt(0).toUpperCase()}
-                </span>
-              </button>
+              {user ? (
+                <>
+                  <button className="p-2 text-gray-500 hover:text-white transition-colors">
+                    <Bell className="h-5 w-5" />
+                  </button>
+                  <button 
+                    onClick={() => setShowProfile(true)}
+                    className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center hover:scale-105 transition-transform relative overflow-hidden"
+                  >
+                    {user.user_metadata?.avatar ? (
+                      <img 
+                        src={`/src/assets/${user.user_metadata.avatar}`} 
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <span className="text-sm font-medium text-white">
+                      {(user.user_metadata?.full_name || user.email || 'U').charAt(0).toUpperCase()}
+                    </span>
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={() => setShowAuthModal(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                >
+                  Login / Sign Up
+                </button>
+              )}
             </div>
           </div>
         </div>
       </header>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 z-50">
-        <div className="grid grid-cols-2 h-16">
-          {navItems.map((item) => {
-            const IconComponent = item.icon;
-            return (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
-                  isActive(item.path)
-                    ? 'text-blue-400'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                <IconComponent className="h-4 w-4" />
-                <span className="text-xs">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+      {user && (
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 z-50">
+          <div className="grid grid-cols-2 h-16">
+            {navItems.map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
+                    isActive(item.path)
+                      ? 'text-blue-400'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <IconComponent className="h-4 w-4" />
+                  <span className="text-xs">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      )}
 
       {/* Bottom padding for mobile navigation */}
-      <div className="h-16 md:hidden"></div>
+      {user && <div className="h-16 md:hidden"></div>}
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
 
       {/* Profile Modal */}
-      {showProfile && (
+      {showProfile && user && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
           <div className="bg-black border border-gray-800 rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             {/* Header */}
@@ -157,106 +199,71 @@ const Navigation = () => {
             <div className="p-6 space-y-6">
               {/* Profile Avatar */}
               <div className="text-center">
-                <div className="h-20 w-20 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mb-3">
-                  <span className="text-2xl font-bold text-white">
-                    {profileData.name.charAt(0).toUpperCase()}
+                <div className="h-20 w-20 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mb-3 relative overflow-hidden">
+                  {user.user_metadata?.avatar ? (
+                    <img 
+                      src={`/src/assets/${user.user_metadata.avatar}`} 
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <span className="text-2xl font-bold text-white absolute inset-0 flex items-center justify-center">
+                    {(user.user_metadata?.full_name || user.email || 'U').charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <h4 className="text-lg font-semibold text-white">{profileData.name}</h4>
+                <h4 className="text-lg font-semibold text-white">
+                  {user.user_metadata?.full_name || 'User'}
+                </h4>
+                {user.user_metadata?.nickname && (
+                  <p className="text-sm text-blue-400">@{user.user_metadata.nickname}</p>
+                )}
               </div>
 
-              {/* Name Field */}
+              {/* Name Field (Read-only) */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-400">Name</label>
-                <div className="flex items-center space-x-2">
-                  {editMode.name ? (
-                    <input
-                      type="text"
-                      value={tempData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter your name"
-                    />
-                  ) : (
-                    <div className="flex-1 px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white">
-                      {profileData.name}
-                    </div>
-                  )}
-                  <div className="flex space-x-1">
-                    <button
-                      onClick={() => handleEditToggle('name')}
-                      className={`p-2 rounded-lg transition-colors ${
-                        editMode.name 
-                          ? 'bg-green-600 hover:bg-green-700 text-white' 
-                          : 'bg-gray-800 hover:bg-gray-700 text-gray-400'
-                      }`}
-                    >
-                      {editMode.name ? <span className="text-xs px-1">Save</span> : <Edit2 className="h-4 w-4" />}
-                    </button>
-                    {editMode.name && (
-                      <button
-                        onClick={() => handleCancel('name')}
-                        className="p-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-white"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
+                <div className="px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white">
+                  {user.user_metadata?.full_name || 'Not set'}
                 </div>
               </div>
 
-              {/* Email Field */}
+              {/* Email Field (Read-only) */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-400">Email</label>
-                <div className="flex items-center space-x-2">
-                  {editMode.email ? (
-                    <input
-                      type="email"
-                      value={tempData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter your email"
-                    />
-                  ) : (
-                    <div className="flex-1 px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white">
-                      {profileData.email}
-                    </div>
-                  )}
-                  <div className="flex space-x-1">
-                    <button
-                      onClick={() => handleEditToggle('email')}
-                      className={`p-2 rounded-lg transition-colors ${
-                        editMode.email 
-                          ? 'bg-green-600 hover:bg-green-700 text-white' 
-                          : 'bg-gray-800 hover:bg-gray-700 text-gray-400'
-                      }`}
-                    >
-                      {editMode.email ? <span className="text-xs px-1">Save</span> : <Edit2 className="h-4 w-4" />}
-                    </button>
-                    {editMode.email && (
-                      <button
-                        onClick={() => handleCancel('email')}
-                        className="p-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-white"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
+                <div className="px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white">
+                  {user.email}
                 </div>
               </div>
 
-              {/* Password Field */}
+              {/* Nickname Field (Read-only) */}
+              {user.user_metadata?.nickname && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-400">Nickname</label>
+                  <div className="px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-blue-400">
+                    @{user.user_metadata.nickname}
+                  </div>
+                </div>
+              )}
+
+              {/* Password Field (Editable) */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-400">Password</label>
-                <div className="flex items-center space-x-2">
-                  {editMode.password ? (
-                    <div className="flex-1 relative">
+                {editMode ? (
+                  <div className="space-y-3">
+                    <div className="relative">
                       <input
                         type={showPassword ? "text" : "password"}
-                        value={tempData.password}
-                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        value={newPassword}
+                        onChange={(e) => {
+                          setNewPassword(e.target.value);
+                          setPasswordError('');
+                        }}
                         className="w-full px-3 py-2 pr-10 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter your password"
+                        placeholder="Enter new password"
                       />
                       <button
                         onClick={() => setShowPassword(!showPassword)}
@@ -265,47 +272,62 @@ const Navigation = () => {
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
-                  ) : (
-                    <div className="flex-1 relative">
-                      <div className="px-3 py-2 pr-10 bg-gray-900 border border-gray-800 rounded-lg text-white">
-                        {showPassword ? profileData.password : '•'.repeat(profileData.password.length)}
-                      </div>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        setPasswordError('');
+                      }}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Confirm new password"
+                    />
+                    {passwordError && (
+                      <p className="text-red-400 text-sm">{passwordError}</p>
+                    )}
+                    <div className="flex space-x-2">
                       <button
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-white"
+                        onClick={handlePasswordUpdate}
+                        disabled={isUpdating}
+                        className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg transition-colors"
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {isUpdating ? 'Updating...' : 'Update'}
+                      </button>
+                      <button
+                        onClick={resetPasswordForm}
+                        className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                      >
+                        Cancel
                       </button>
                     </div>
-                  )}
-                  <div className="flex space-x-1">
-                    <button
-                      onClick={() => handleEditToggle('password')}
-                      className={`p-2 rounded-lg transition-colors ${
-                        editMode.password 
-                          ? 'bg-green-600 hover:bg-green-700 text-white' 
-                          : 'bg-gray-800 hover:bg-gray-700 text-gray-400'
-                      }`}
-                    >
-                      {editMode.password ? <span className="text-xs px-1">Save</span> : <Edit2 className="h-4 w-4" />}
-                    </button>
-                    {editMode.password && (
-                      <button
-                        onClick={() => handleCancel('password')}
-                        className="p-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-white"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    )}
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <div className="flex-1 px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white">
+                      ••••••••
+                    </div>
+                    <button
+                      onClick={() => setEditMode(true)}
+                      className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-gray-400"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Footer */}
-              <div className="pt-4 border-t border-gray-800">
+              <div className="pt-4 border-t border-gray-800 space-y-3">
+                <button
+                  onClick={handleSignOut}
+                  className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </button>
                 <button
                   onClick={() => setShowProfile(false)}
-                  className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                  className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium"
                 >
                   Close
                 </button>
