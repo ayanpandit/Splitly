@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Users, DollarSign, Plus, CheckCircle } from 'lucide-react';
+import { Search, Users, Plus, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 
@@ -13,32 +13,28 @@ const Groups = () => {
       id: 1,
       name: 'Weekend Trip',
       members: 4,
-      amount: 125.50,
-      image: '/src/assets/weekend-trip.jpg',
+      image: '/src/assets/1.jpg',
       status: 'active'
     },
     {
       id: 2,
       name: 'Apartment Expenses',
       members: 2,
-      amount: 580.00,
-      image: '/src/assets/apartment.jpg',
+      image: '/src/assets/2.jpg',
       status: 'active'
     },
     {
       id: 3,
       name: 'Project Team Lunch',
       members: 8,
-      amount: 45.75,
-      image: '/src/assets/team-lunch.jpg',
+      image: '/src/assets/3.jpg',
       status: 'active'
     },
     {
       id: 4,
       name: 'Game Night',
       members: 6,
-      amount: 0,
-      image: '/src/assets/game-night.jpg',
+      image: '/src/assets/4.jpg',
       status: 'settled'
     }
   ];
@@ -70,7 +66,7 @@ const Groups = () => {
       <Navigation />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-20 md:pb-8">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-4 sm:mb-0">
@@ -174,7 +170,7 @@ const Groups = () => {
                     </span>
                   </div>
 
-                  {/* Amount or Status */}
+                  {/* Status */}
                   <div className="flex items-center space-x-2">
                     {group.status === 'settled' ? (
                       <>
@@ -185,9 +181,9 @@ const Groups = () => {
                       </>
                     ) : (
                       <>
-                        <DollarSign className="h-4 w-4 text-green-400" />
-                        <span className="text-sm text-green-400 font-medium">
-                          ${group.amount.toFixed(2)}
+                        <CheckCircle className="h-4 w-4 text-blue-400" />
+                        <span className="text-sm text-blue-400 font-medium">
+                          Active
                         </span>
                       </>
                     )}

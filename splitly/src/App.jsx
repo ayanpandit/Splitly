@@ -14,9 +14,6 @@ function App() {
       <Route path="/group/:groupId" element={<GroupDetail />} />
       <Route path="/group/:groupId/expenses" element={<Expenses />} />
       <Route path="/group/:groupId/settlements" element={<Settlements />} />
-      {/* Legacy routes for backward compatibility */}
-      <Route path="/expense" element={<Expenses />} />
-      <Route path="/settlements" element={<Settlements />} />
     </Routes>
   );
 }

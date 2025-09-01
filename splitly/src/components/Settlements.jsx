@@ -6,42 +6,33 @@ import { useNavigate, useParams } from 'react-router-dom';
 const Settlements = () => {
   const navigate = useNavigate();
   const { groupId } = useParams();
+
+  // Sample group data
+  const groupData = {
+    1: { name: 'Weekend Trip', members: 4 },
+    2: { name: 'Apartment Expenses', members: 2 },
+    3: { name: 'Project Team Lunch', members: 8 },
+    4: { name: 'Game Night', members: 6 }
+  };
+
+  const group = groupData[groupId] || { name: 'Unknown Group', members: 0 };
+
   const [settlements, setSettlements] = useState([
     {
       id: 1,
       nickname: 'Ayan',
       fullName: 'Ayan Pandit',
-      avatar: '/src/assets/ayan-avatar.jpg',
+      avatar: '/src/assets/5.jpg',
       amount: 125.50,
-      type: 'owes_you', // they owe you money
-      groupName: 'Goa Trip'
+      type: 'owes_you'
     },
     {
       id: 2,
       nickname: 'Priya',
       fullName: 'Priya Sharma',
-      avatar: '/src/assets/priya-avatar.jpg',
+      avatar: '/src/assets/6.jpg',
       amount: 80.25,
-      type: 'you_owe', // you owe them money
-      groupName: 'Goa Trip'
-    },
-    {
-      id: 3,
-      nickname: 'Vikram',
-      fullName: 'Vikram Singh',
-      avatar: '/src/assets/vikram-avatar.jpg',
-      amount: 45.00,
-      type: 'owes_you',
-      groupName: 'Goa Trip'
-    },
-    {
-      id: 4,
-      nickname: 'Anika',
-      fullName: 'Anika Gupta',
-      avatar: '/src/assets/anika-avatar.jpg',
-      amount: 60.75,
-      type: 'you_owe',
-      groupName: 'Goa Trip'
+      type: 'you_owe'
     }
   ]);
 
@@ -65,7 +56,7 @@ const Settlements = () => {
       <Navigation />
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-20 md:pb-8">
         {/* Page Header */}
         <div className="flex items-center space-x-4 mb-6 sm:mb-8">
           <button 
@@ -79,7 +70,7 @@ const Settlements = () => {
               Settlements
             </h1>
             <p className="text-gray-500 text-sm sm:text-base mt-1">
-              Goa Trip • {settlements.length} People
+              {group.name} • {settlements.length} People
             </p>
           </div>
         </div>
@@ -118,7 +109,16 @@ const Settlements = () => {
               <div className="flex items-center space-x-4">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
-                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm sm:text-base">
+                  <img 
+                    src={settlement.avatar} 
+                    alt={settlement.nickname}
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm sm:text-base" style={{display: 'none'}}>
                     {settlement.nickname.charAt(0)}
                   </div>
                 </div>

@@ -12,7 +12,7 @@ const Home = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <div className="px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+      <div className="px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 pb-20 md:pb-16">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Column - Text Content */}

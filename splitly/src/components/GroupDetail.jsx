@@ -1,21 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, IndianRupee, HandCoins, Settings } from 'lucide-react';
+import { ArrowLeft, Users, IndianRupee, HandCoins } from 'lucide-react';
 import Navigation from './Navigation';
 
 const GroupDetail = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
+  const [showMembers, setShowMembers] = useState(false);
+
+  // Sample members data for each group
+  const membersData = {
+    1: [
+      { id: 1, name: 'Ayan', nickname: 'Ayan', avatar: '/src/assets/5.jpg' },
+      { id: 2, name: 'Priya Sharma', nickname: 'Priya', avatar: '/src/assets/6.jpg' },
+      { id: 3, name: 'Vikram Singh', nickname: 'Vikram', avatar: '/src/assets/7.jpg' },
+      { id: 4, name: 'Anika Gupta', nickname: 'Anika', avatar: '/src/assets/1.jpg' }
+    ],
+    2: [
+      { id: 1, name: 'Rohit Kumar', nickname: 'Rohit', avatar: '/src/assets/2.jpg' },
+      { id: 2, name: 'Sneha Patel', nickname: 'Sneha', avatar: '/src/assets/3.jpg' }
+    ],
+    3: [
+      { id: 1, name: 'Arjun Reddy', nickname: 'Arjun', avatar: '/src/assets/4.jpg' },
+      { id: 2, name: 'Kavya Nair', nickname: 'Kavya', avatar: '/src/assets/5.jpg' },
+      { id: 3, name: 'Rahul Jain', nickname: 'Rahul', avatar: '/src/assets/6.jpg' },
+      { id: 4, name: 'Pooja Singh', nickname: 'Pooja', avatar: '/src/assets/7.jpg' },
+      { id: 5, name: 'Amit Gupta', nickname: 'Amit', avatar: '/src/assets/1.jpg' },
+      { id: 6, name: 'Neha Sharma', nickname: 'Neha', avatar: '/src/assets/2.jpg' },
+      { id: 7, name: 'Karan Mehta', nickname: 'Karan', avatar: '/src/assets/3.jpg' },
+      { id: 8, name: 'Divya Agarwal', nickname: 'Divya', avatar: '/src/assets/4.jpg' }
+    ],
+    4: [
+      { id: 1, name: 'Sachin Tendulkar', nickname: 'Sachin', avatar: '/src/assets/5.jpg' },
+      { id: 2, name: 'Virat Kohli', nickname: 'Virat', avatar: '/src/assets/6.jpg' },
+      { id: 3, name: 'MS Dhoni', nickname: 'MSD', avatar: '/src/assets/7.jpg' },
+      { id: 4, name: 'Rohit Sharma', nickname: 'Hitman', avatar: '/src/assets/1.jpg' },
+      { id: 5, name: 'KL Rahul', nickname: 'KL', avatar: '/src/assets/2.jpg' },
+      { id: 6, name: 'Hardik Pandya', nickname: 'Hardik', avatar: '/src/assets/3.jpg' }
+    ]
+  };
+
+  const groupMembers = membersData[groupId] || [];
 
   // Sample group data - in real app, you'd fetch this by groupId
   const groupData = {
-    1: { name: 'Weekend Trip', members: 4, amount: 125.50, image: '/src/assets/weekend-trip.jpg' },
-    2: { name: 'Apartment Expenses', members: 2, amount: 580.00, image: '/src/assets/apartment.jpg' },
-    3: { name: 'Project Team Lunch', members: 8, amount: 45.75, image: '/src/assets/team-lunch.jpg' },
-    4: { name: 'Game Night', members: 6, amount: 0, image: '/src/assets/game-night.jpg' }
+    1: { name: 'Weekend Trip', members: 4, image: '/src/assets/1.jpg' },
+    2: { name: 'Apartment Expenses', members: 2, image: '/src/assets/2.jpg' },
+    3: { name: 'Project Team Lunch', members: 8, image: '/src/assets/3.jpg' },
+    4: { name: 'Game Night', members: 6, image: '/src/assets/4.jpg' }
   };
 
-  const group = groupData[groupId] || { name: 'Unknown Group', members: 0, amount: 0, image: '' };
+  const group = groupData[groupId] || { name: 'Unknown Group', members: 0, image: '/src/assets/1.jpg' };
 
   const menuItems = [
     {
@@ -35,16 +70,9 @@ const GroupDetail = () => {
     {
       icon: Users,
       title: 'Members',
-      description: 'Manage group members',
+      description: 'View group members',
       color: 'bg-purple-500 hover:bg-purple-600',
-      onClick: () => {/* Add member management */}
-    },
-    {
-      icon: Settings,
-      title: 'Settings',
-      description: 'Group settings and preferences',
-      color: 'bg-gray-600 hover:bg-gray-700',
-      onClick: () => {/* Add group settings */}
+      onClick: () => setShowMembers(true)
     }
   ];
 
@@ -53,7 +81,7 @@ const GroupDetail = () => {
       <Navigation />
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-20 md:pb-8">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-8">
           <button 
@@ -67,7 +95,7 @@ const GroupDetail = () => {
               {group.name}
             </h1>
             <p className="text-gray-400 text-sm sm:text-base mt-1">
-              {group.members} Members • ₹{group.amount.toFixed(2)} Total
+              {group.members} Members
             </p>
           </div>
         </div>
@@ -87,7 +115,7 @@ const GroupDetail = () => {
         </div>
 
         {/* Menu Grid */}
-        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
           {menuItems.map((item, index) => {
             const IconComponent = item.icon;
             return (
@@ -114,24 +142,45 @@ const GroupDetail = () => {
           })}
         </div>
 
-        {/* Quick Stats */}
-        <div className="mt-8 bg-gray-900 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Quick Overview</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">{group.members}</div>
-              <div className="text-sm text-gray-400">Members</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-400">₹{group.amount.toFixed(2)}</div>
-              <div className="text-sm text-gray-400">Total Spent</div>
-            </div>
-            <div className="text-center col-span-2 sm:col-span-1">
-              <div className="text-2xl font-bold text-blue-400">₹{(group.amount / group.members || 0).toFixed(2)}</div>
-              <div className="text-sm text-gray-400">Per Person</div>
+        {/* Members Modal */}
+        {showMembers && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+            <div className="bg-black border border-gray-800 rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white">Group Members</h3>
+                <button 
+                  onClick={() => setShowMembers(false)}
+                  className="p-1 hover:bg-gray-900 rounded-lg transition-colors"
+                >
+                  <ArrowLeft className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                {groupMembers.map((member) => (
+                  <div key={member.id} className="flex items-center space-x-4 p-3 bg-gray-900 rounded-lg">
+                    <img 
+                      src={member.avatar} 
+                      alt={member.nickname}
+                      className="w-12 h-12 rounded-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm" style={{display: 'none'}}>
+                      {member.nickname.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-white">{member.nickname}</h4>
+                      <p className="text-gray-400 text-sm">{member.name}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );

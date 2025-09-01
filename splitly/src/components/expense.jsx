@@ -22,55 +22,100 @@ const Expenses = () => {
     4: { name: 'Game Night', members: 6 }
   };
 
-  const group = groupData[groupId] || { name: 'Goa Trip', members: 4 };
+  const group = groupData[groupId] || { name: 'Unknown Group', members: 0 };
 
-  // Sample members data
-  const members = [
-    { id: 1, name: 'Ayan', avatar: '/src/assets/ayan-avatar.jpg' },
-    { id: 2, name: 'Priya', avatar: '/src/assets/priya-avatar.jpg' },
-    { id: 3, name: 'Vikram', avatar: '/src/assets/vikram-avatar.jpg' },
-    { id: 4, name: 'Anika', avatar: '/src/assets/anika-avatar.jpg' }
-  ];
+  // Sample members data for each group
+  const membersData = {
+    1: [
+      { id: 1, name: 'Ayan', avatar: '/src/assets/5.jpg' },
+      { id: 2, name: 'Priya', avatar: '/src/assets/6.jpg' },
+      { id: 3, name: 'Vikram', avatar: '/src/assets/7.jpg' },
+      { id: 4, name: 'Anika', avatar: '/src/assets/1.jpg' }
+    ],
+    2: [
+      { id: 1, name: 'Rohit', avatar: '/src/assets/2.jpg' },
+      { id: 2, name: 'Sneha', avatar: '/src/assets/3.jpg' }
+    ],
+    3: [
+      { id: 1, name: 'Arjun', avatar: '/src/assets/4.jpg' },
+      { id: 2, name: 'Kavya', avatar: '/src/assets/5.jpg' },
+      { id: 3, name: 'Rahul', avatar: '/src/assets/6.jpg' },
+      { id: 4, name: 'Pooja', avatar: '/src/assets/7.jpg' },
+      { id: 5, name: 'Amit', avatar: '/src/assets/1.jpg' },
+      { id: 6, name: 'Neha', avatar: '/src/assets/2.jpg' },
+      { id: 7, name: 'Karan', avatar: '/src/assets/3.jpg' },
+      { id: 8, name: 'Divya', avatar: '/src/assets/4.jpg' }
+    ],
+    4: [
+      { id: 1, name: 'Sachin', avatar: '/src/assets/5.jpg' },
+      { id: 2, name: 'Virat', avatar: '/src/assets/6.jpg' },
+      { id: 3, name: 'MSD', avatar: '/src/assets/7.jpg' },
+      { id: 4, name: 'Hitman', avatar: '/src/assets/1.jpg' },
+      { id: 5, name: 'KL', avatar: '/src/assets/2.jpg' },
+      { id: 6, name: 'Hardik', avatar: '/src/assets/3.jpg' }
+    ]
+  };
 
-  // Sample expenses data with date/time
-  const expenses = [
-    {
-      id: 1,
-      description: 'Beach resort accommodation for 3 nights',
-      amount: 200,
-      paidBy: 'Ayan',
-      splitAcross: 4,
-      avatar: '/src/assets/ayan-avatar.jpg',
-      dateTime: '2024-12-15T14:30:00'
-    },
-    {
-      id: 2,
-      description: 'Seafood dinner with drinks and appetizers',
-      amount: 300,
-      paidBy: 'Priya',
-      splitAcross: 4,
-      avatar: '/src/assets/priya-avatar.jpg',
-      dateTime: '2024-12-15T20:45:00'
-    },
-    {
-      id: 3,
-      description: 'SUV rental for beach trip transportation',
-      amount: 400,
-      paidBy: 'Vikram',
-      splitAcross: 4,
-      avatar: '/src/assets/vikram-avatar.jpg',
-      dateTime: '2024-12-16T09:15:00'
-    },
-    {
-      id: 4,
-      description: 'Food supplies and snacks for the trip',
-      amount: 300,
-      paidBy: 'Anika',
-      splitAcross: 4,
-      avatar: '/src/assets/anika-avatar.jpg',
-      dateTime: '2024-12-16T11:20:00'
-    }
-  ];
+  const members = membersData[groupId] || [];
+
+  // Sample expenses data specific to each group
+  const expensesData = {
+    1: [
+      {
+        id: 1,
+        description: 'Beach resort accommodation',
+        amount: 2000,
+        paidBy: 'Ayan',
+        splitAcross: 4,
+        avatar: '/src/assets/5.jpg',
+        dateTime: '2024-12-15T14:30:00'
+      },
+      {
+        id: 2,
+        description: 'Seafood dinner',
+        amount: 1200,
+        paidBy: 'Priya',
+        splitAcross: 4,
+        avatar: '/src/assets/6.jpg',
+        dateTime: '2024-12-15T20:45:00'
+      }
+    ],
+    2: [
+      {
+        id: 1,
+        description: 'Monthly rent',
+        amount: 15000,
+        paidBy: 'Rohit',
+        splitAcross: 2,
+        avatar: '/src/assets/2.jpg',
+        dateTime: '2024-12-01T10:00:00'
+      }
+    ],
+    3: [
+      {
+        id: 1,
+        description: 'Team lunch buffet',
+        amount: 2400,
+        paidBy: 'Arjun',
+        splitAcross: 8,
+        avatar: '/src/assets/4.jpg',
+        dateTime: '2024-12-16T13:00:00'
+      }
+    ],
+    4: [
+      {
+        id: 1,
+        description: 'Board games purchase',
+        amount: 800,
+        paidBy: 'Sachin',
+        splitAcross: 6,
+        avatar: '/src/assets/5.jpg',
+        dateTime: '2024-12-14T18:00:00'
+      }
+    ]
+  };
+
+  const expenses = expensesData[groupId] || [];
 
   const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
   const memberCount = group.members;
@@ -122,7 +167,7 @@ const Expenses = () => {
       <Navigation />
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-20 md:pb-8">
         {/* Page Header */}
         <div className="flex items-center space-x-4 mb-6 sm:mb-8">
           <button 
@@ -184,7 +229,16 @@ const Expenses = () => {
                     {/* Paid By and Date/Time */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                        <img 
+                          src={expense.avatar} 
+                          alt={expense.paidBy}
+                          className="w-8 h-8 rounded-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextElementSibling.style.display = 'flex';
+                          }}
+                        />
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center" style={{display: 'none'}}>
                           <span className="text-sm font-medium text-white">
                             {expense.paidBy.charAt(0)}
                           </span>
@@ -323,7 +377,16 @@ const Expenses = () => {
                           className="text-blue-600 focus:ring-blue-500"
                         />
                         <div className="ml-3 flex items-center space-x-2">
-                          <div className="h-6 w-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                          <img 
+                            src={members.find(m => m.id === member.id)?.avatar} 
+                            alt={member.name}
+                            className="w-6 h-6 rounded-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextElementSibling.style.display = 'flex';
+                            }}
+                          />
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center" style={{display: 'none'}}>
                             <span className="text-xs font-medium text-white">
                               {member.name.charAt(0)}
                             </span>
