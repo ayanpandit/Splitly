@@ -100,6 +100,19 @@ export const AuthProvider = ({ children }) => {
 
       if (error) throw error
 
+      // Create profile row (may already be created via trigger; attempt idempotent insert)
+      if (data?.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            full_name: fullName,
+            nickname,
+            avatar
+          }, { onConflict: 'id' })
+        if (profileError) console.warn('Profile upsert warning:', profileError.message)
+      }
+
       return { data, error: null }
     } catch (error) {
       return { data: null, error }

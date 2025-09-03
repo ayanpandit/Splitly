@@ -1,43 +1,44 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navigation from './Navigation';
 import { ArrowLeft, Users, Check } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { listFriendSettlements } from '../services/settlements';
+import { getGroup } from '../services/groups';
+import { useAuth } from '../contexts/AuthContext';
 
 const Settlements = () => {
   const navigate = useNavigate();
   const { groupId } = useParams();
 
-  // Sample group data
-  const groupData = {
-    1: { name: 'Weekend Trip', members: 4 },
-    2: { name: 'Apartment Expenses', members: 2 },
-    3: { name: 'Project Team Lunch', members: 8 },
-    4: { name: 'Game Night', members: 6 }
-  };
+  const { user } = useAuth();
+  const [group, setGroup] = useState(null);
+  const [settlements, setSettlements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const group = groupData[groupId] || { name: 'Unknown Group', members: 0 };
-
-  const [settlements, setSettlements] = useState([
-    {
-      id: 1,
-      nickname: 'Ayan',
-      fullName: 'Ayan Pandit',
-      avatar: '/src/assets/5.jpg',
-      amount: 125.50,
-      type: 'owes_you'
-    },
-    {
-      id: 2,
-      nickname: 'Priya',
-      fullName: 'Priya Sharma',
-      avatar: '/src/assets/6.jpg',
-      amount: 80.25,
-      type: 'you_owe'
-    }
-  ]);
+  useEffect(() => {
+    const load = async () => {
+      if (!groupId || !user) return;
+      setLoading(true);
+      try {
+        const [g, s] = await Promise.all([
+          getGroup(groupId),
+          listFriendSettlements(groupId, user.id)
+        ]);
+        setGroup(g);
+        setSettlements(s);
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [groupId, user]);
 
   const handleSettleUp = (friendId) => {
-    setSettlements(prev => prev.filter(settlement => settlement.id !== friendId));
+    // For now just remove locally; future: record settlement
+    setSettlements(prev => prev.filter(s => s.id !== friendId));
   };
 
   const totalYouOwe = settlements
@@ -70,7 +71,7 @@ const Settlements = () => {
               Settlements
             </h1>
             <p className="text-gray-500 text-sm sm:text-base mt-1">
-              {group.name} • {settlements.length} People
+              {group ? group.name : 'Loading...'} • {settlements.length} People
             </p>
           </div>
         </div>
@@ -101,7 +102,9 @@ const Settlements = () => {
             Friend Settlements
           </h2>
 
-          {settlements.map((settlement) => (
+          {loading && <div className="text-center text-gray-500 py-8">Loading...</div>}
+          {error && <div className="text-center text-red-400 py-4">{error}</div>}
+          {!loading && settlements.map((settlement) => (
             <div
               key={settlement.id}
               className="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-5 hover:bg-gray-800 transition-colors"
@@ -109,11 +112,17 @@ const Settlements = () => {
               <div className="flex items-center space-x-4">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
-                  <img 
-                    src={settlement.avatar} 
-                    alt={settlement.nickname}
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover"
-                  />
+                  {settlement.avatar && (
+                    <img
+                      src={settlement.avatar}
+                      alt={settlement.nickname}
+                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover"
+                      onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.style.display='flex'; }}
+                    />
+                  )}
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold" style={{display: settlement.avatar ? 'none':'flex'}}>
+                    {settlement.nickname.charAt(0)}
+                  </div>
                 </div>
 
                 {/* Friend Info */}
@@ -152,7 +161,7 @@ const Settlements = () => {
         </div>
 
         {/* Empty State */}
-        {settlements.length === 0 && (
+          {!loading && settlements.length === 0 && (
           <div className="text-center py-12">
             <div className="max-w-md mx-auto">
               <div className="h-16 w-16 mx-auto mb-4 bg-gray-900 border border-gray-800 rounded-full flex items-center justify-center">

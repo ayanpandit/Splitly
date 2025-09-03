@@ -1,56 +1,41 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, IndianRupee, HandCoins } from 'lucide-react';
 import Navigation from './Navigation';
+import { getGroup, getGroupMembers } from '../services/groups';
+import { useAuth } from '../contexts/AuthContext';
 
 const GroupDetail = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
   const [showMembers, setShowMembers] = useState(false);
+  const [group, setGroup] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const { user } = useAuth();
 
-  // Sample members data for each group
-  const membersData = {
-    1: [
-      { id: 1, name: 'Ayan', nickname: 'Ayan', avatar: '/src/assets/5.jpg' },
-      { id: 2, name: 'Priya Sharma', nickname: 'Priya', avatar: '/src/assets/6.jpg' },
-      { id: 3, name: 'Vikram Singh', nickname: 'Vikram', avatar: '/src/assets/7.jpg' },
-      { id: 4, name: 'Anika Gupta', nickname: 'Anika', avatar: '/src/assets/1.jpg' }
-    ],
-    2: [
-      { id: 1, name: 'Rohit Kumar', nickname: 'Rohit', avatar: '/src/assets/2.jpg' },
-      { id: 2, name: 'Sneha Patel', nickname: 'Sneha', avatar: '/src/assets/3.jpg' }
-    ],
-    3: [
-      { id: 1, name: 'Arjun Reddy', nickname: 'Arjun', avatar: '/src/assets/4.jpg' },
-      { id: 2, name: 'Kavya Nair', nickname: 'Kavya', avatar: '/src/assets/5.jpg' },
-      { id: 3, name: 'Rahul Jain', nickname: 'Rahul', avatar: '/src/assets/6.jpg' },
-      { id: 4, name: 'Pooja Singh', nickname: 'Pooja', avatar: '/src/assets/7.jpg' },
-      { id: 5, name: 'Amit Gupta', nickname: 'Amit', avatar: '/src/assets/1.jpg' },
-      { id: 6, name: 'Neha Sharma', nickname: 'Neha', avatar: '/src/assets/2.jpg' },
-      { id: 7, name: 'Karan Mehta', nickname: 'Karan', avatar: '/src/assets/3.jpg' },
-      { id: 8, name: 'Divya Agarwal', nickname: 'Divya', avatar: '/src/assets/4.jpg' }
-    ],
-    4: [
-      { id: 1, name: 'Sachin Tendulkar', nickname: 'Sachin', avatar: '/src/assets/5.jpg' },
-      { id: 2, name: 'Virat Kohli', nickname: 'Virat', avatar: '/src/assets/6.jpg' },
-      { id: 3, name: 'MS Dhoni', nickname: 'MSD', avatar: '/src/assets/7.jpg' },
-      { id: 4, name: 'Rohit Sharma', nickname: 'Hitman', avatar: '/src/assets/1.jpg' },
-      { id: 5, name: 'KL Rahul', nickname: 'KL', avatar: '/src/assets/2.jpg' },
-      { id: 6, name: 'Hardik Pandya', nickname: 'Hardik', avatar: '/src/assets/3.jpg' }
-    ]
-  };
-
-  const groupMembers = membersData[groupId] || [];
-
-  // Sample group data - in real app, you'd fetch this by groupId
-  const groupData = {
-    1: { name: 'Weekend Trip', members: 4, image: '/src/assets/1.jpg' },
-    2: { name: 'Apartment Expenses', members: 2, image: '/src/assets/2.jpg' },
-    3: { name: 'Project Team Lunch', members: 8, image: '/src/assets/3.jpg' },
-    4: { name: 'Game Night', members: 6, image: '/src/assets/4.jpg' }
-  };
-
-  const group = groupData[groupId] || { name: 'Unknown Group', members: 0, image: '/src/assets/1.jpg' };
+  useEffect(() => {
+    const load = async () => {
+      if (!groupId || !user) return;
+      setLoading(true);
+      try {
+        const g = await getGroup(groupId);
+        setGroup(g); // show header even if members fetch fails
+        try {
+          const mem = await getGroupMembers(groupId);
+          setMembers(mem);
+        } catch (memberErr) {
+          console.error('Failed to load members', memberErr);
+        }
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [groupId, user]);
 
   const menuItems = [
     {
@@ -91,27 +76,32 @@ const GroupDetail = () => {
             <ArrowLeft className="h-5 w-5 text-gray-400" />
           </button>
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">
-              {group.name}
-            </h1>
-            <p className="text-gray-400 text-sm sm:text-base mt-1">
-              {group.members} Members
-            </p>
+            {group ? (
+              <>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">{group.name}</h1>
+                <p className="text-gray-400 text-sm sm:text-base mt-1">{members.length} Member{members.length !== 1 ? 's' : ''}</p>
+              </>
+            ) : (
+              <div className="animate-pulse">
+                <div className="h-7 w-40 bg-gray-800 rounded mb-2"></div>
+                <div className="h-4 w-24 bg-gray-800 rounded"></div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Group Image */}
         <div className="mb-8">
-          <div className="w-full h-48 sm:h-64 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
-            <img
-              src={group.image}
-              alt={group.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-          </div>
+          {group && (
+            <div className="w-full h-48 sm:h-64 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
+              <img
+                src={`/src/assets/${group.image}`}
+                alt={group.name}
+                className="w-full h-full object-cover"
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+            </div>
+          )}
         </div>
 
         {/* Menu Grid */}
@@ -155,25 +145,25 @@ const GroupDetail = () => {
                   <ArrowLeft className="h-5 w-5 text-gray-500" />
                 </button>
               </div>
-              
               <div className="space-y-4">
-                {groupMembers.map((member) => (
+                {loading && <div className="text-gray-500 text-center py-8">Loading...</div>}
+                {error && <div className="text-red-400 text-center py-4">{error}</div>}
+                {!loading && members.map((member) => (
                   <div key={member.id} className="flex items-center space-x-4 p-3 bg-gray-900 rounded-lg">
-                    <img 
-                      src={member.avatar} 
-                      alt={member.nickname}
-                      className="w-12 h-12 rounded-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'flex';
-                      }}
-                    />
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm" style={{display: 'none'}}>
-                      {member.nickname.charAt(0)}
+                    {member.avatar && (
+                      <img
+                        src={member.avatar}
+                        alt={member.nickname}
+                        className="w-12 h-12 rounded-full object-cover"
+                        onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.style.display = 'flex'; }}
+                      />
+                    )}
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm" style={{display: member.avatar ? 'none':'flex'}}>
+                      {(member.nickname || member.full_name || 'U').charAt(0)}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-white">{member.nickname}</h4>
-                      <p className="text-gray-400 text-sm">{member.name}</p>
+                      <h4 className="font-semibold text-white">{member.nickname || member.full_name}</h4>
+                      <p className="text-gray-400 text-sm">{member.full_name}</p>
                     </div>
                   </div>
                 ))}

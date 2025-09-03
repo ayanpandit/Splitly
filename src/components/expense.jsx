@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Plus, Bell, Users, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, Plus, Users, X } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
+import { useAuth } from '../contexts/AuthContext';
+import { getGroupMembers, getGroup } from '../services/groups';
+import { listExpenses, addExpense } from '../services/expenses';
 
 const Expenses = () => {
   const { groupId } = useParams();
@@ -14,111 +17,38 @@ const Expenses = () => {
   });
   const [selectedMembers, setSelectedMembers] = useState([]);
 
-  // Sample group data - in real app, you'd fetch this by groupId
-  const groupData = {
-    1: { name: 'Weekend Trip', members: 4 },
-    2: { name: 'Apartment Expenses', members: 2 },
-    3: { name: 'Project Team Lunch', members: 8 },
-    4: { name: 'Game Night', members: 6 }
-  };
+  const { user } = useAuth();
+  const [group, setGroup] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
-  const group = groupData[groupId] || { name: 'Unknown Group', members: 0 };
-
-  // Sample members data for each group
-  const membersData = {
-    1: [
-      { id: 1, name: 'Ayan', avatar: '/src/assets/5.jpg' },
-      { id: 2, name: 'Priya', avatar: '/src/assets/6.jpg' },
-      { id: 3, name: 'Vikram', avatar: '/src/assets/7.jpg' },
-      { id: 4, name: 'Anika', avatar: '/src/assets/1.jpg' }
-    ],
-    2: [
-      { id: 1, name: 'Rohit', avatar: '/src/assets/2.jpg' },
-      { id: 2, name: 'Sneha', avatar: '/src/assets/3.jpg' }
-    ],
-    3: [
-      { id: 1, name: 'Arjun', avatar: '/src/assets/4.jpg' },
-      { id: 2, name: 'Kavya', avatar: '/src/assets/5.jpg' },
-      { id: 3, name: 'Rahul', avatar: '/src/assets/6.jpg' },
-      { id: 4, name: 'Pooja', avatar: '/src/assets/7.jpg' },
-      { id: 5, name: 'Amit', avatar: '/src/assets/1.jpg' },
-      { id: 6, name: 'Neha', avatar: '/src/assets/2.jpg' },
-      { id: 7, name: 'Karan', avatar: '/src/assets/3.jpg' },
-      { id: 8, name: 'Divya', avatar: '/src/assets/4.jpg' }
-    ],
-    4: [
-      { id: 1, name: 'Sachin', avatar: '/src/assets/5.jpg' },
-      { id: 2, name: 'Virat', avatar: '/src/assets/6.jpg' },
-      { id: 3, name: 'MSD', avatar: '/src/assets/7.jpg' },
-      { id: 4, name: 'Hitman', avatar: '/src/assets/1.jpg' },
-      { id: 5, name: 'KL', avatar: '/src/assets/2.jpg' },
-      { id: 6, name: 'Hardik', avatar: '/src/assets/3.jpg' }
-    ]
-  };
-
-  const members = membersData[groupId] || [];
-
-  // Sample expenses data specific to each group
-  const expensesData = {
-    1: [
-      {
-        id: 1,
-        description: 'Beach resort accommodation',
-        amount: 2000,
-        paidBy: 'Ayan',
-        splitAcross: 4,
-        avatar: '/src/assets/5.jpg',
-        dateTime: '2024-12-15T14:30:00'
-      },
-      {
-        id: 2,
-        description: 'Seafood dinner',
-        amount: 1200,
-        paidBy: 'Priya',
-        splitAcross: 4,
-        avatar: '/src/assets/6.jpg',
-        dateTime: '2024-12-15T20:45:00'
+  useEffect(() => {
+    const load = async () => {
+      if (!groupId || !user) return;
+      setLoading(true);
+      try {
+        const [g, mem, exp] = await Promise.all([
+          getGroup(groupId),
+          getGroupMembers(groupId),
+          listExpenses(groupId)
+        ]);
+        setGroup(g);
+        setMembers(mem);
+        setExpenses(exp);
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
       }
-    ],
-    2: [
-      {
-        id: 1,
-        description: 'Monthly rent',
-        amount: 15000,
-        paidBy: 'Rohit',
-        splitAcross: 2,
-        avatar: '/src/assets/2.jpg',
-        dateTime: '2024-12-01T10:00:00'
-      }
-    ],
-    3: [
-      {
-        id: 1,
-        description: 'Team lunch buffet',
-        amount: 2400,
-        paidBy: 'Arjun',
-        splitAcross: 8,
-        avatar: '/src/assets/4.jpg',
-        dateTime: '2024-12-16T13:00:00'
-      }
-    ],
-    4: [
-      {
-        id: 1,
-        description: 'Board games purchase',
-        amount: 800,
-        paidBy: 'Sachin',
-        splitAcross: 6,
-        avatar: '/src/assets/5.jpg',
-        dateTime: '2024-12-14T18:00:00'
-      }
-    ]
-  };
-
-  const expenses = expensesData[groupId] || [];
+    };
+    load();
+  }, [groupId, user]);
 
   const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const memberCount = group.members;
+  const memberCount = members.length;
 
   const formatDateTime = (dateTimeString) => {
     const date = new Date(dateTimeString);
@@ -148,12 +78,27 @@ const Expenses = () => {
     );
   };
 
-  const handleSubmitExpense = () => {
-    // Here you would handle the expense submission
-    console.log('New expense:', newExpense, 'Selected members:', selectedMembers);
-    setShowAddExpense(false);
-    setNewExpense({ description: '', amount: '', splitAcross: 'all' });
-    setSelectedMembers(members.map(m => m.id));
+  const handleSubmitExpense = async () => {
+    if (!newExpense.description || !newExpense.amount || selectedMembers.length === 0) return;
+    setSaving(true);
+    try {
+      await addExpense({
+        groupId,
+        description: newExpense.description,
+        amount: parseFloat(newExpense.amount),
+        payerId: user.id,
+        participantIds: selectedMembers
+      });
+      const exp = await listExpenses(groupId);
+      setExpenses(exp);
+      setShowAddExpense(false);
+      setNewExpense({ description: '', amount: '', splitAcross: 'all' });
+      setSelectedMembers(members.map(m => m.id));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const closeModal = () => {
@@ -177,9 +122,7 @@ const Expenses = () => {
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </button>
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">
-              {group.name}
-            </h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">{group ? group.name : 'Loading...'}</h1>
             <p className="text-gray-500 text-sm sm:text-base mt-1">
               Total Spent: ₹{totalSpent.toLocaleString()} • {memberCount} Members
             </p>
@@ -202,52 +145,34 @@ const Expenses = () => {
 
           {/* Expenses List */}
           <div className="space-y-3 sm:space-y-4">
-            {expenses.map((expense) => {
-              const { dateStr, timeStr } = formatDateTime(expense.dateTime);
+            {loading && <div className="text-center text-gray-500 py-8">Loading...</div>}
+            {error && <div className="text-center text-red-400 py-4">{error}</div>}
+            {!loading && expenses.map((expense) => {
+              const { dateStr, timeStr } = formatDateTime(expense.created_at);
               return (
-                <div
-                  key={expense.id}
-                  className="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-5 hover:bg-gray-950 transition-all duration-300 cursor-pointer"
-                >
+                <div key={expense.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-5 hover:bg-gray-950 transition-all duration-300">
                   <div className="space-y-3">
-                    {/* Description */}
-                    <p className="text-white text-base sm:text-lg font-medium">
-                      {expense.description}
-                    </p>
-                    
-                    {/* Amount */}
-                    <div className="text-2xl sm:text-3xl font-bold text-green-400">
-                      ₹{expense.amount.toLocaleString()}
-                    </div>
-                    
-                    {/* Split Info */}
+                    <p className="text-white text-base sm:text-lg font-medium">{expense.description}</p>
+                    <div className="text-2xl sm:text-3xl font-bold text-green-400">₹{expense.amount.toLocaleString()}</div>
                     <div className="flex items-center space-x-2 text-gray-500 text-sm">
                       <Users className="h-4 w-4" />
-                      <span>Split across {expense.splitAcross} members</span>
+                      <span>Split equally</span>
                     </div>
-                    
-                    {/* Paid By and Date/Time */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <img 
-                          src={expense.avatar} 
-                          alt={expense.paidBy}
-                          className="w-8 h-8 rounded-full object-cover"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextElementSibling.style.display = 'flex';
-                          }}
-                        />
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center" style={{display: 'none'}}>
-                          <span className="text-sm font-medium text-white">
-                            {expense.paidBy.charAt(0)}
-                          </span>
+                        {expense.avatar && (
+                          <img
+                            src={expense.avatar}
+                            alt={expense.payer_name}
+                            className="w-8 h-8 rounded-full object-cover"
+                            onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.style.display = 'flex'; }}
+                          />
+                        )}
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center" style={{display: expense.avatar ? 'none':'flex'}}>
+                          <span className="text-sm font-medium text-white">{expense.payer_name.charAt(0)}</span>
                         </div>
-                        <span className="text-gray-400 text-sm">
-                          Paid by <span className="text-white font-medium">{expense.paidBy}</span>
-                        </span>
+                        <span className="text-gray-400 text-sm">Paid by <span className="text-white font-medium">{expense.payer_name}</span></span>
                       </div>
-                      
                       <div className="text-right text-xs text-gray-600">
                         <div>{dateStr}</div>
                         <div>{timeStr}</div>
@@ -417,7 +342,7 @@ const Expenses = () => {
                   disabled={!newExpense.description || !newExpense.amount || selectedMembers.length === 0}
                   className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
                 >
-                  Add Expense
+                  {saving ? 'Saving...' : 'Add Expense'}
                 </button>
               </div>
             </div>
