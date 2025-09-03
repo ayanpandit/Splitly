@@ -113,14 +113,7 @@ const Settlements = () => {
                     src={settlement.avatar} 
                     alt={settlement.nickname}
                     className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextElementSibling.style.display = 'flex';
-                    }}
                   />
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm sm:text-base" style={{display: 'none'}}>
-                    {settlement.nickname.charAt(0)}
-                  </div>
                 </div>
 
                 {/* Friend Info */}

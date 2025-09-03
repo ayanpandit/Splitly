@@ -200,34 +200,13 @@ const Navigation = () => {
               {/* Profile Avatar */}
               <div className="text-center">
                 <div className="h-20 w-20 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mb-3 relative overflow-hidden">
-                  {user.user_metadata?.avatar ? (
+                  {user.user_metadata?.avatar && (
                     <img 
                       src={`/src/assets/${user.user_metadata.avatar}`} 
                       alt="Avatar"
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'flex';
-                      }}
                     />
-                  ) : null}
-                  <span className="text-2xl font-bold text-white absolute inset-0 flex items-center justify-center">
-                    {(user.user_metadata?.full_name || user.email || 'U').charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <h4 className="text-lg font-semibold text-white">
-                  {user.user_metadata?.full_name || 'User'}
-                </h4>
-                {user.user_metadata?.nickname && (
-                  <p className="text-sm text-blue-400">@{user.user_metadata.nickname}</p>
-                )}
-              </div>
-
-              {/* Name Field (Read-only) */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-400">Name</label>
-                <div className="px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white">
-                  {user.user_metadata?.full_name || 'Not set'}
+                  )}
                 </div>
               </div>
 
