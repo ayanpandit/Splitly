@@ -124,3 +124,10 @@ export async function deleteGroup(groupId, userId) {
     .eq('id', groupId)
   if (error) throw error
 }
+
+export async function promoteMember(groupId, targetUserId, actingUserId) {
+  // server-side RPC enforces admin check; actingUserId param kept for symmetry/in future auditing
+  const { error } = await supabase
+    .rpc('promote_group_member', { gid: groupId, target_uid: targetUserId })
+  if (error) throw error
+}

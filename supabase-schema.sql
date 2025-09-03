@@ -176,6 +176,26 @@ begin
 end;
 $$ language plpgsql security definer;
 
+-- Promote a member to admin (caller must be an admin of the group)
+create or replace function public.promote_group_member(gid uuid, target_uid uuid)
+returns void as $$
+begin
+  -- ensure caller is admin of group
+  if not exists (
+    select 1 from public.group_members gm
+    where gm.group_id = gid and gm.user_id = auth.uid() and gm.role = 'admin'
+  ) then
+    raise exception 'Not authorized';
+  end if;
+  update public.group_members
+    set role = 'admin'
+    where group_id = gid and user_id = target_uid;
+  if not found then
+    raise exception 'Member not found';
+  end if;
+end;
+$$ language plpgsql security definer;
+
 -- ================= Additional helper triggers =================
 -- Ensure created_by defaults to auth.uid() if not provided and auto add admin membership
 create or replace function public.set_group_created_by()
