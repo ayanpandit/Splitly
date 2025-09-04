@@ -1,37 +1,27 @@
 import { supabase } from '../lib/supabase'
 
 export async function listFriendSettlements(groupId, userId) {
-  // 1. Fetch all group members
-  const { data: members, error: memErr } = await supabase
+  // 1. Fetch member ids
+  const { data: gmRows, error: gmErr } = await supabase
     .from('group_members')
-    .select('user_id, profiles:profiles(id, full_name, nickname, avatar)')
-    .eq('group_id,', groupId)
-  if (memErr) throw memErr
-
-  // Fallback if above join style fails (RLS or join syntax), fetch members then profiles separately
-  let memberList = []
-  if (!members) {
-    const { data: rawMembers, error: rawErr } = await supabase
-      .from('group_members')
-      .select('user_id')
-      .eq('group_id', groupId)
-    if (rawErr) throw rawErr
-    const ids = rawMembers.map(r => r.user_id)
-    const { data: profs, error: profErr } = await supabase
-      .from('profiles')
-      .select('id, full_name, nickname, avatar')
-      .in('id', ids)
-    if (profErr) throw profErr
-    const profMap = Object.fromEntries(profs.map(p => [p.id, p]))
-    memberList = ids.map(id => ({ id, ...profMap[id] }))
-  } else {
-    memberList = members.map(m => ({
-      id: m.user_id,
-      full_name: m.profiles?.full_name,
-      nickname: m.profiles?.nickname,
-      avatar: m.profiles?.avatar
-    }))
-  }
+    .select('user_id')
+    .eq('group_id', groupId)
+  if (gmErr) throw gmErr
+  const memberIds = (gmRows || []).map(r => r.user_id)
+  if (!memberIds.includes(userId)) return [] // safety
+  // Fetch profiles
+  const { data: profs, error: profErr } = await supabase
+    .from('profiles')
+    .select('id, full_name, nickname, avatar')
+    .in('id', memberIds)
+  if (profErr) throw profErr
+  const profMap = Object.fromEntries((profs || []).map(p => [p.id, p]))
+  const memberList = memberIds.map(id => ({
+    id,
+    full_name: profMap[id]?.full_name,
+    nickname: profMap[id]?.nickname,
+    avatar: profMap[id]?.avatar
+  }))
 
   // 2. Fetch expenses with shares
   const { data: expenses, error: expErr } = await supabase
@@ -40,7 +30,7 @@ export async function listFriendSettlements(groupId, userId) {
     .eq('group_id', groupId)
   if (expErr) throw expErr
 
-  // 3. Compute per-user totals paid and owed
+  // 3. Compute per-user totals paid and owed (each payer also owes their share already represented in shares)
   const paid = {}
   const owed = {}
   expenses.forEach(e => {
@@ -57,11 +47,8 @@ export async function listFriendSettlements(groupId, userId) {
     .eq('group_id', groupId)
   if (setErr) throw setErr
 
-  // We'll adjust paid & owed using settlements: when from pays to, treat it as from paid extra and to owed extra (net reducing from's debt or increasing credit)
-  settlementsRows.forEach(r => {
-    paid[r.from_user_id] = (paid[r.from_user_id] || 0) + parseFloat(r.amount)
-    owed[r.to_user_id] = (owed[r.to_user_id] || 0) + parseFloat(r.amount)
-  })
+  // Adjust nets by settlements: from pays to => from's net increases, to's net decreases
+  // We'll apply after computing net
 
   // 5. Build net for each member relative to current user
   // netUser = paid[user] - owed[user]
@@ -69,15 +56,24 @@ export async function listFriendSettlements(groupId, userId) {
   memberList.forEach(m => {
     net[m.id] = (paid[m.id] || 0) - (owed[m.id] || 0)
   })
+  settlementsRows.forEach(r => {
+    const amt = parseFloat(r.amount)
+    net[r.from_user_id] = (net[r.from_user_id] || 0) + amt
+    net[r.to_user_id] = (net[r.to_user_id] || 0) - amt
+  })
 
-  // Current user's net used as baseline; we want pairwise obligations: if net[other] > net[current] they have fronted more -> you owe them share difference proportionally.
-  // Simpler approach for UI: show amount other owes you if their net < 0 and yours > 0 proportionally isn't trivial; Instead compute direct diff: diff = net[other] - net[userId].
-  // If diff > 0 => other is more positive (you owe them) ; diff < 0 => they owe you.
   const yourNet = net[userId] || 0
   const results = memberList.filter(m => m.id !== userId).map(m => {
-    const diff = net[m.id] - yourNet
-    const type = diff > 0 ? 'you_owe' : (diff < 0 ? 'owes_you' : 'settled')
-    const amount = Math.abs(diff)
+    const otherNet = net[m.id] || 0
+    let type = 'settled'
+    let amount = 0
+    if (yourNet > 0 && otherNet < 0) {
+      amount = Math.min(yourNet, -otherNet)
+      type = 'owes_you'
+    } else if (yourNet < 0 && otherNet > 0) {
+      amount = Math.min(-yourNet, otherNet)
+      type = 'you_owe'
+    }
     return {
       id: m.id,
       nickname: m.nickname || m.full_name || 'User',
@@ -86,8 +82,7 @@ export async function listFriendSettlements(groupId, userId) {
       amount: +amount.toFixed(2),
       type
     }
-  }).filter(r => r.amount > 0.01) // remove near-zero noise
-
+  })
   return results
 }
 
