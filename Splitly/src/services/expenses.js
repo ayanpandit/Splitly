@@ -59,3 +59,11 @@ export async function addExpense({ groupId, description, amount, payerId, partic
 
   return expense
 }
+
+export async function deleteExpense(expenseId) {
+  const { error } = await supabase
+    .from('expenses')
+    .delete()
+    .eq('id', expenseId)
+  if (error) throw error
+}

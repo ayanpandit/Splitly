@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { getGroupMembers, getGroup } from '../services/groups';
-import { listExpenses, addExpense } from '../services/expenses';
+import { listExpenses, addExpense, deleteExpense } from '../services/expenses';
 
 const Expenses = () => {
   const { groupId } = useParams();
@@ -151,8 +151,18 @@ const Expenses = () => {
             {error && <div className="text-center text-red-400 py-4">{error}</div>}
             {!loading && expenses.map((expense) => {
               const { dateStr, timeStr } = formatDateTime(expense.created_at);
+              const currentUserIsAdmin = members.some(m => m.id === user?.id && m.role === 'admin');
+              const canDelete = currentUserIsAdmin || expense.paid_by === user?.id;
               return (
-                <div key={expense.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-5 hover:bg-gray-950 transition-all duration-300">
+                <div key={expense.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-5 hover:bg-gray-950 transition-all duration-300 relative">
+                  {canDelete && (
+                    <button
+                      onClick={async () => {
+                        try { await deleteExpense(expense.id); setExpenses(await listExpenses(groupId)); } catch(e) { setError(e.message); }
+                      }}
+                      className="absolute top-2 right-2 text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded"
+                    >Del</button>
+                  )}
                   <div className="space-y-3">
                     <p className="text-white text-base sm:text-lg font-medium">{expense.description}</p>
                     <div className="text-2xl sm:text-3xl font-bold text-green-400">₹{expense.amount.toLocaleString()}</div>

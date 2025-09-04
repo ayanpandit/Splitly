@@ -127,7 +127,15 @@ create policy "GroupMembers: Delete admin" on public.group_members for delete us
 create policy "Expenses: Select" on public.expenses for select using (exists (select 1 from public.group_members gm where gm.group_id = expenses.group_id and gm.user_id = auth.uid()));
 create policy "Expenses: Insert" on public.expenses for insert with check (exists (select 1 from public.group_members gm where gm.group_id = expenses.group_id and gm.user_id = auth.uid()));
 create policy "Expenses: Update by payer" on public.expenses for update using (paid_by = auth.uid());
-create policy "Expenses: Delete by payer" on public.expenses for delete using (paid_by = auth.uid());
+drop policy if exists "Expenses: Delete by payer" on public.expenses;
+create policy "Expenses: Delete by payer_or_admin" on public.expenses for delete using (
+  paid_by = auth.uid() OR exists (
+    select 1 from public.group_members gm
+    where gm.group_id = expenses.group_id
+      and gm.user_id = auth.uid()
+      and gm.role = 'admin'
+  )
+);
 
 -- Expense shares: select members; insert when related expense inserted; no update except member or payer
 create policy "ExpenseShares: Select" on public.expense_shares for select using (exists (
