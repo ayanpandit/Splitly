@@ -137,52 +137,59 @@ const Settlements = () => {
               key={settlement.id}
               className="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-5 hover:bg-gray-800 transition-colors"
             >
-              <div className="flex items-center space-x-4">
-                {/* Avatar */}
-                <div className="flex-shrink-0">
-                  {settlement.avatar && (
-                    <img
-                      src={settlement.avatar}
-                      alt={settlement.nickname}
-                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover"
-                      onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.style.display='flex'; }}
-                    />
-                  )}
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold" style={{display: settlement.avatar ? 'none':'flex'}}>
-                    {settlement.nickname.charAt(0)}
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                {/* Top section: Avatar + Friend Info */}
+                <div className="flex items-center space-x-3 flex-1">
+                  {/* Avatar */}
+                  <div className="flex-shrink-0">
+                    {settlement.avatar && (
+                      <img
+                        src={settlement.avatar}
+                        alt={settlement.nickname}
+                        className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover"
+                        onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.style.display='flex'; }}
+                      />
+                    )}
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm sm:text-base" style={{display: settlement.avatar ? 'none':'flex'}}>
+                      {settlement.nickname.charAt(0)}
+                    </div>
+                  </div>
+
+                  {/* Friend Info */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-white text-sm sm:text-base md:text-lg truncate">
+                      {settlement.nickname}
+                    </h3>
+                    <p className="text-gray-500 text-xs sm:text-sm truncate">
+                      {settlement.fullName}
+                    </p>
                   </div>
                 </div>
 
-                {/* Friend Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-white text-base sm:text-lg">
-                    {settlement.nickname}
-                  </h3>
-                  <p className="text-gray-500 text-sm sm:text-base">
-                    {settlement.fullName}
-                  </p>
-                </div>
-
-                {/* Amount */}
-                <div className="text-right flex-shrink-0">
-                  <div className={`text-lg sm:text-xl font-bold ${
-                    settlement.type === 'owes_you' ? 'text-green-400' : 'text-red-400'
-                  }`}>
-                    {settlement.type === 'owes_you' ? '+' : '-'}₹{settlement.amount.toFixed(2)}
+                {/* Bottom section: Amount + Button */}
+                <div className="flex items-center justify-between sm:justify-end sm:space-x-4">
+                  {/* Amount */}
+                  <div className="text-left sm:text-right">
+                    <div className={`text-base sm:text-lg md:text-xl font-bold ${
+                      settlement.type === 'owes_you' ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {settlement.type === 'owes_you' ? '+' : '-'}₹{settlement.amount.toFixed(2)}
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      {settlement.type === 'owes_you' ? 'owes you' : 'you owe'}
+                    </p>
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-500">
-                    {settlement.type === 'owes_you' ? 'owes you' : 'you owe'}
-                  </p>
-                </div>
 
-                {/* Settle Up Button */}
-                <button
-                  onClick={() => openSettle(settlement)}
-                  className="bg-teal-500 hover:bg-teal-600 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors font-medium text-sm sm:text-base flex items-center space-x-1 sm:space-x-2"
-                >
-                  <Check className="h-4 w-4" />
-                  <span>Settle Up</span>
-                </button>
+                  {/* Settle Up Button */}
+                  <button
+                    onClick={() => openSettle(settlement)}
+                    className="bg-teal-500 hover:bg-teal-600 text-white px-3 py-2 sm:px-4 rounded-lg transition-colors font-medium text-xs sm:text-sm flex items-center space-x-1 flex-shrink-0"
+                  >
+                    <Check className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden xs:inline sm:inline">Settle Up</span>
+                    <span className="xs:hidden sm:hidden">Pay</span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
