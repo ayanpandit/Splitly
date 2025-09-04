@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Navigation from './Navigation';
 import { ArrowLeft, Users, Check } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { listFriendSettlements } from '../services/settlements';
+import { listFriendSettlements, recordSettlement } from '../services/settlements';
 import { getGroup } from '../services/groups';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -36,9 +36,37 @@ const Settlements = () => {
     load();
   }, [groupId, user]);
 
-  const handleSettleUp = (friendId) => {
-    // For now just remove locally; future: record settlement
-    setSettlements(prev => prev.filter(s => s.id !== friendId));
+  const [settleTarget, setSettleTarget] = useState(null); // object {id, max, type}
+  const [settleAmount, setSettleAmount] = useState('');
+  const [settling, setSettling] = useState(false);
+
+  const openSettle = (s) => {
+    setSettleTarget(s);
+    setSettleAmount(s.amount.toFixed(2));
+  };
+
+  const submitSettlement = async () => {
+    if (!settleTarget) return;
+    const amt = parseFloat(settleAmount);
+    if (!amt || amt <= 0) return;
+    if (amt > settleTarget.amount + 0.001) return; // guard
+    setSettling(true);
+    try {
+      // Determine direction: if you owe them, you pay them; else they owe you -> you record inbound payment
+      if (settleTarget.type === 'you_owe') {
+        await recordSettlement({ groupId, fromUserId: user.id, toUserId: settleTarget.id, amount: amt });
+      } else {
+        await recordSettlement({ groupId, fromUserId: settleTarget.id, toUserId: user.id, amount: amt });
+      }
+      // Reload settlements fresh to reflect reduction
+      const updated = await listFriendSettlements(groupId, user.id);
+      setSettlements(updated);
+      setSettleTarget(null);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSettling(false);
+    }
   };
 
   const totalYouOwe = settlements
@@ -149,7 +177,7 @@ const Settlements = () => {
 
                 {/* Settle Up Button */}
                 <button
-                  onClick={() => handleSettleUp(settlement.id)}
+                  onClick={() => openSettle(settlement)}
                   className="bg-teal-500 hover:bg-teal-600 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors font-medium text-sm sm:text-base flex items-center space-x-1 sm:space-x-2"
                 >
                   <Check className="h-4 w-4" />
@@ -177,6 +205,36 @@ const Settlements = () => {
           </div>
         )}
       </main>
+      {settleTarget && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-black border border-gray-800 rounded-xl p-6 w-full max-w-sm space-y-5">
+            <h4 className="text-lg font-semibold text-white text-center">Settle Up</h4>
+            <p className="text-gray-400 text-sm text-center">
+              {settleTarget.type === 'you_owe' ? 'Pay to' : 'Receive from'} <span className="text-white font-medium">{settleTarget.nickname}</span>
+            </p>
+            <div>
+              <label className="block text-gray-500 text-xs mb-1">Amount (max ₹{settleTarget.amount.toFixed(2)})</label>
+              <input
+                type="number"
+                value={settleAmount}
+                onChange={e => setSettleAmount(e.target.value)}
+                className="w-full px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white"
+                min="0"
+                step="0.01"
+                max={settleTarget.amount.toFixed(2)}
+              />
+            </div>
+            <div className="flex space-x-3">
+              <button onClick={() => setSettleTarget(null)} className="flex-1 bg-gray-800 hover:bg-gray-700 rounded py-2 text-sm">Cancel</button>
+              <button
+                disabled={settling || !settleAmount || parseFloat(settleAmount) <= 0 || parseFloat(settleAmount) > settleTarget.amount + 0.001}
+                onClick={submitSettlement}
+                className="flex-1 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-700 rounded py-2 text-sm"
+              >{settling ? 'Processing...' : 'Confirm'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

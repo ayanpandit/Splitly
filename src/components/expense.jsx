@@ -67,7 +67,7 @@ const Expenses = () => {
 
   const handleAddExpense = () => {
     setShowAddExpense(true);
-    setSelectedMembers(members.map(m => m.id)); // Default: all members selected
+    setSelectedMembers(members.map(m => m.id)); // default all
   };
 
   const toggleMember = (memberId) => {
@@ -123,9 +123,11 @@ const Expenses = () => {
           </button>
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-white">{group ? group.name : 'Loading...'}</h1>
-            <p className="text-gray-500 text-sm sm:text-base mt-1">
-              Total Spent: ₹{totalSpent.toLocaleString()} • {memberCount} Members
-            </p>
+            {group && (
+              <p className="text-gray-500 text-sm sm:text-base mt-1">
+                Total Spent: ₹{totalSpent.toLocaleString()} • {memberCount} Member{memberCount!==1?'s':''}
+              </p>
+            )}
           </div>
           <button 
             onClick={handleAddExpense}
@@ -293,33 +295,35 @@ const Expenses = () => {
                     Select Members
                   </label>
                   <div className="space-y-2">
-                    {members.map((member) => (
-                      <label key={member.id} className="flex items-center p-2 hover:bg-gray-900 rounded-lg cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedMembers.includes(member.id)}
-                          onChange={() => toggleMember(member.id)}
-                          className="text-blue-600 focus:ring-blue-500"
-                        />
-                        <div className="ml-3 flex items-center space-x-2">
-                          <img 
-                            src={members.find(m => m.id === member.id)?.avatar} 
-                            alt={member.name}
-                            className="w-6 h-6 rounded-full object-cover"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextElementSibling.style.display = 'flex';
-                            }}
+                    {members.map((member) => {
+                      const displayName = member.nickname || member.full_name || 'User';
+                      return (
+                        <label key={member.id} className="flex items-center p-2 hover:bg-gray-900 rounded-lg cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedMembers.includes(member.id)}
+                            onChange={() => toggleMember(member.id)}
+                            className="text-blue-600 focus:ring-blue-500"
                           />
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center" style={{display: 'none'}}>
-                            <span className="text-xs font-medium text-white">
-                              {member.name.charAt(0)}
-                            </span>
+                          <div className="ml-3 flex items-center space-x-2">
+                            {member.avatar && (
+                              <img
+                                src={member.avatar}
+                                alt={displayName}
+                                className="w-6 h-6 rounded-full object-cover"
+                                onError={(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }}
+                              />
+                            )}
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center" style={{display: member.avatar ? 'none':'flex'}}>
+                              <span className="text-xs font-medium text-white">
+                                {displayName.charAt(0)}
+                              </span>
+                            </div>
+                            <span className="text-white">{displayName}</span>
                           </div>
-                          <span className="text-white">{member.name}</span>
-                        </div>
-                      </label>
-                    ))}
+                        </label>
+                      );
+                    })}
                   </div>
                   {selectedMembers.length > 0 && (
                     <div className="mt-2 text-sm text-gray-500">

@@ -1,21 +1,34 @@
 import { supabase } from '../lib/supabase'
 
 export async function listExpenses(groupId) {
-  const { data, error } = await supabase
+  const { data: expenses, error } = await supabase
     .from('expenses')
-    .select('id, description, amount, paid_by, created_at, profiles:profiles!expenses_paid_by_fkey(id, full_name, nickname, avatar)')
+    .select('id, description, amount, paid_by, created_at')
     .eq('group_id', groupId)
     .order('created_at', { ascending: false })
   if (error) throw error
-  return data.map(e => ({
-    id: e.id,
-    description: e.description,
-    amount: parseFloat(e.amount),
-    paid_by: e.paid_by,
-    payer_name: e.profiles?.nickname || e.profiles?.full_name || 'User',
-    avatar: e.profiles?.avatar ? `/src/assets/${e.profiles.avatar}` : null,
-    created_at: e.created_at
-  }))
+
+  if (!expenses || expenses.length === 0) return []
+  const payerIds = Array.from(new Set(expenses.map(e => e.paid_by)))
+  const { data: profiles, error: profErr } = await supabase
+    .from('profiles')
+    .select('id, full_name, nickname, avatar')
+    .in('id', payerIds)
+  if (profErr) throw profErr
+  const profMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
+
+  return expenses.map(e => {
+    const p = profMap[e.paid_by] || {}
+    return {
+      id: e.id,
+      description: e.description,
+      amount: parseFloat(e.amount),
+      paid_by: e.paid_by,
+      payer_name: p.nickname || p.full_name || 'User',
+      avatar: p.avatar ? `/src/assets/${p.avatar}` : null,
+      created_at: e.created_at
+    }
+  })
 }
 
 export async function addExpense({ groupId, description, amount, payerId, participantIds }) {
