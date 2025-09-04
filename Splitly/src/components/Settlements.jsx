@@ -171,8 +171,10 @@ const Settlements = () => {
                   {/* Amount */}
                   <div className="text-left sm:text-right">
                     <div className={`text-base sm:text-lg md:text-xl font-bold ${
-                      settlement.type === 'owes_you' ? 'text-green-400' : 'text-red-400'
-                    }`}>
+                        settlement.amount === 0
+                          ? 'text-green-400'
+                          : (settlement.type === 'owes_you' ? 'text-green-400' : 'text-red-400')
+                      }`}>
                       {settlement.type === 'owes_you' ? '+' : '-'}₹{settlement.amount.toFixed(2)}
                     </div>
                     <p className="text-xs sm:text-sm text-gray-500">
