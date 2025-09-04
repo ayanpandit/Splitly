@@ -79,7 +79,7 @@ const Navigation = () => {
             {/* Logo and Brand */}
             <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
               <img 
-                src="/src/assets/logo.webp" 
+                src="/assets/logo.webp" 
                 alt="Splitly Logo" 
                 className="h-8 w-8"
                 onError={(e) => {
@@ -119,7 +119,7 @@ const Navigation = () => {
                   >
                     {user.user_metadata?.avatar ? (
                       <img 
-                        src={`/src/assets/${user.user_metadata.avatar}`} 
+                        src={`/assets/${user.user_metadata.avatar}`} 
                         alt="Avatar"
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -202,7 +202,7 @@ const Navigation = () => {
                 <div className="h-20 w-20 mx-auto rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mb-3 relative overflow-hidden">
                   {user.user_metadata?.avatar && (
                     <img 
-                      src={`/src/assets/${user.user_metadata.avatar}`} 
+                      src={`/assets/${user.user_metadata.avatar}`} 
                       alt="Avatar"
                       className="w-full h-full object-cover"
                     />

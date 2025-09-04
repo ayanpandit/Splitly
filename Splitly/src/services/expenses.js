@@ -25,7 +25,7 @@ export async function listExpenses(groupId) {
       amount: parseFloat(e.amount),
       paid_by: e.paid_by,
       payer_name: p.nickname || p.full_name || 'User',
-      avatar: p.avatar ? `/src/assets/${p.avatar}` : null,
+  avatar: p.avatar ? `/assets/${p.avatar}` : null,
       created_at: e.created_at
     }
   })

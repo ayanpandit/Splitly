@@ -97,7 +97,7 @@ const GroupDetail = () => {
           {group && (
             <div className="w-full h-48 sm:h-64 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
               <img
-                src={`/src/assets/${group.image}`}
+                src={`/assets/${group.image}`}
                 alt={group.name}
                 className="w-full h-full object-cover"
                 onError={(e) => { e.target.style.display = 'none'; }}

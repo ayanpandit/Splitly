@@ -39,7 +39,7 @@ export async function listUserGroups(userId) {
   return (data || []).map(r => ({
     id: r.groups.id,
     name: r.groups.name,
-    image: `/src/assets/${r.groups.image}`,
+    image: `/assets/${r.groups.image}`,
     members: r.groups.group_members[0]?.count || 0,
     invite_code: r.groups.invite_code,
     invite_expires_at: r.groups.invite_expires_at,
@@ -66,7 +66,7 @@ export async function getGroupMembers(groupId) {
     role: m.role,
     full_name: m.full_name,
     nickname: m.nickname,
-    avatar: m.avatar ? `/src/assets/${m.avatar}` : null
+  avatar: m.avatar ? `/assets/${m.avatar}` : null
   }))
 }
 

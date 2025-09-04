@@ -59,7 +59,7 @@ export async function listFriendSettlements(groupId, userId) {
         id: otherId,
         nickname: p.nickname || p.full_name,
         fullName: p.full_name,
-        avatar: p.avatar ? `/src/assets/${p.avatar}` : null,
+  avatar: p.avatar ? `/assets/${p.avatar}` : null,
         amount: amt,
         type
       })
