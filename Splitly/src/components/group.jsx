@@ -95,10 +95,27 @@ const Groups = () => {
     return `${hrs}h ${mins}m left`;
   };
 
-  const buildWhatsAppLink = (g) => {
-    const text = encodeURIComponent(`Join my group "${g.name}" on Splitly. Code: ${g.invite_code} (valid for 24h).`);
-    return `https://wa.me/?text=${text}`;
-  };
+ const buildWhatsAppLink = (g) => {
+  const message = `
+🎉 Hey! I just created a group on *Splitly* 💸
+
+📌 Group Name: ${g.name}
+🔑 Invite Code: ${g.invite_code} (valid for 24h)
+
+With this group you can:
+✅ Add and split expenses with friends
+✅ Track who owes whom easily
+✅ Keep everything fair and transparent
+
+🚀 Join the group now and never worry about calculations again!
+
+👉 Open Splitly here: https://splitly-8u7h.onrender.com
+`;
+
+  const text = encodeURIComponent(message);
+  return `https://wa.me/?text=${text}`;
+};
+
 
   const [regeneratingId, setRegeneratingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
