@@ -58,15 +58,15 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Feature 1 */}
             <div className="text-center">
               <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-teal-400 rounded-xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
                 <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gray-800 rounded"></div>
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">No Registration</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">No Download Required</h3>
               <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-                Start splitting expenses immediately. No lengthy signup process or email verification needed.
+                Runs directly in your browser—no install, no wasted storage. Just open and go!
               </p>
             </div>
 
@@ -75,9 +75,9 @@ const Home = () => {
               <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-teal-400 rounded-xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
                 <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gray-800 rounded"></div>
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Smart Splitting</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Lightweight & Fast</h3>
               <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-                Automatically calculate how much each person owes with intelligent split calculations.
+                Optimized for speed with a playful, cartoonish UI that works smoothly on any device.
               </p>
             </div>
 
@@ -86,9 +86,9 @@ const Home = () => {
               <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-teal-400 rounded-xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
                 <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gray-800 rounded"></div>
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Real-time Balances</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Playful Avatars & Nicknames</h3>
               <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-                Keep track of who owes what in real-time. Always know your current balance with the group.
+                Every user gets a fun cartoon avatar and nickname for a lively, personal experience.
               </p>
             </div>
 
@@ -97,9 +97,31 @@ const Home = () => {
               <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-teal-400 rounded-xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
                 <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gray-800 rounded"></div>
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Fair Settlements</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Cross-Device Access</h3>
               <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-                Settle up fairly with optimized payment suggestions that minimize transactions needed.
+                Log in from any device—phone, tablet, or computer—and pick up right where you left off.
+              </p>
+            </div>
+
+            {/* Feature 5 */}
+            <div className="text-center">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-teal-400 rounded-xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gray-800 rounded"></div>
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Contact Developer</h3>
+              <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+                Built-in contact form lets you reach the developer directly from the app—feedback always welcome!
+              </p>
+            </div>
+
+            {/* Feature 6 */}
+            <div className="text-center">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-teal-400 rounded-xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gray-800 rounded"></div>
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Privacy First</h3>
+              <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+                Your data is never sold or shared. You’re always in control of your information.
               </p>
             </div>
           </div>
