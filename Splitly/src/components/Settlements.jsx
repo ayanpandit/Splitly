@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Navigation from './Navigation';
 import { ArrowLeft, Users, Check } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -16,25 +16,24 @@ const Settlements = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const load = async () => {
-      if (!groupId || !user) return;
-      setLoading(true);
-      try {
-        const [g, s] = await Promise.all([
-          getGroup(groupId),
-          listFriendSettlements(groupId, user.id)
-        ]);
-        setGroup(g);
-        setSettlements(s);
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+  const refreshData = useCallback(async () => {
+    if (!groupId || !user) return;
+    setLoading(true);
+    try {
+      const [g, s] = await Promise.all([
+        getGroup(groupId),
+        listFriendSettlements(groupId, user.id)
+      ]);
+      setGroup(g);
+      setSettlements(s);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   }, [groupId, user]);
+
+  useEffect(() => { refreshData(); }, [refreshData]);
 
   const [settleTarget, setSettleTarget] = useState(null); // object {id, max, type}
   const [settleAmount, setSettleAmount] = useState('');
@@ -58,9 +57,7 @@ const Settlements = () => {
       } else {
         await recordSettlement({ groupId, fromUserId: settleTarget.id, toUserId: user.id, amount: amt });
       }
-      // Reload settlements fresh to reflect reduction
-      const updated = await listFriendSettlements(groupId, user.id);
-      setSettlements(updated);
+  await refreshData();
       setSettleTarget(null);
     } catch (e) {
       setError(e.message);
@@ -102,6 +99,11 @@ const Settlements = () => {
               {group ? group.name : 'Loading...'} • {settlements.length} People
             </p>
           </div>
+          <button
+            onClick={refreshData}
+            className="bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-lg text-xs sm:text-sm"
+            title="Refresh"
+          >Refresh</button>
         </div>
 
         {/* Summary Card */}

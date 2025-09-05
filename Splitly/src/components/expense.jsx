@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { ArrowLeft, Plus, Users, X } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
@@ -25,27 +25,26 @@ const Expenses = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const load = async () => {
-      if (!groupId || !user) return;
-      setLoading(true);
-      try {
-        const [g, mem, exp] = await Promise.all([
-          getGroup(groupId),
-          getGroupMembers(groupId),
-          listExpenses(groupId)
-        ]);
-        setGroup(g);
-        setMembers(mem);
-        setExpenses(exp);
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+  const refreshData = useCallback(async () => {
+    if (!groupId || !user) return;
+    setLoading(true);
+    try {
+      const [g, mem, exp] = await Promise.all([
+        getGroup(groupId),
+        getGroupMembers(groupId),
+        listExpenses(groupId)
+      ]);
+      setGroup(g);
+      setMembers(mem);
+      setExpenses(exp);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   }, [groupId, user]);
+
+  useEffect(() => { refreshData(); }, [refreshData]);
 
   const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
   const memberCount = members.length;
@@ -129,14 +128,21 @@ const Expenses = () => {
               </p>
             )}
           </div>
-          <button 
-            onClick={handleAddExpense}
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 px-3 sm:px-4 py-2 rounded-lg transition-colors font-medium text-sm sm:text-base"
-          >
-            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="hidden sm:inline">Add Expense</span>
-            <span className="sm:hidden">Add</span>
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={refreshData}
+              className="bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-lg text-xs sm:text-sm"
+              title="Refresh"
+            >Refresh</button>
+            <button 
+              onClick={handleAddExpense}
+              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 px-3 sm:px-4 py-2 rounded-lg transition-colors font-medium text-sm sm:text-base"
+            >
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="hidden sm:inline">Add Expense</span>
+              <span className="sm:hidden">Add</span>
+            </button>
+          </div>
         </div>
 
         {/* Expenses Section */}
@@ -158,7 +164,7 @@ const Expenses = () => {
                   {canDelete && (
                     <button
                       onClick={async () => {
-                        try { await deleteExpense(expense.id); setExpenses(await listExpenses(groupId)); } catch(e) { setError(e.message); }
+                        try { await deleteExpense(expense.id); await refreshData(); } catch(e) { setError(e.message); }
                       }}
                       className="absolute top-2 right-2 text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded"
                     >Del</button>

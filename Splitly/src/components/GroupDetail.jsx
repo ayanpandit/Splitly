@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, IndianRupee, HandCoins } from 'lucide-react';
 import Navigation from './Navigation';
@@ -17,27 +17,26 @@ const GroupDetail = () => {
   const [error, setError] = useState('');
   const { user } = useAuth();
 
-  useEffect(() => {
-    const load = async () => {
-      if (!groupId || !user) return;
-      setLoading(true);
+  const refreshData = useCallback(async () => {
+    if (!groupId || !user) return;
+    setLoading(true);
+    try {
+      const g = await getGroup(groupId);
+      setGroup(g); // show header even if members fetch fails
       try {
-        const g = await getGroup(groupId);
-        setGroup(g); // show header even if members fetch fails
-        try {
-          const mem = await getGroupMembers(groupId);
-          setMembers(mem);
-        } catch (memberErr) {
-          console.error('Failed to load members', memberErr);
-        }
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
+        const mem = await getGroupMembers(groupId);
+        setMembers(mem);
+      } catch (memberErr) {
+        console.error('Failed to load members', memberErr);
       }
-    };
-    load();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   }, [groupId, user]);
+
+  useEffect(() => { refreshData(); }, [refreshData]);
 
   const menuItems = [
     {
@@ -140,6 +139,11 @@ const GroupDetail = () => {
             <div className="bg-black border border-gray-800 rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-white">Group Members</h3>
+                <button
+                  onClick={refreshData}
+                  className="ml-4 bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded text-xs"
+                  title="Refresh"
+                >Refresh</button>
                 <button 
                   onClick={() => setShowMembers(false)}
                   className="p-1 hover:bg-gray-900 rounded-lg transition-colors"
@@ -187,8 +191,7 @@ const GroupDetail = () => {
                                 setActioning(member.id);
                                 try {
                                   await promoteMember(groupId, member.id, user.id);
-                                  const mem = await getGroupMembers(groupId);
-                                  setMembers(mem);
+                                  await refreshData();
                                 } catch (e) {
                                   console.error(e);
                                 } finally {
@@ -229,8 +232,7 @@ const GroupDetail = () => {
                   setActioning(confirmKick.id);
                   try {
                     await removeMember(groupId, confirmKick.id, user.id);
-                    const mem = await getGroupMembers(groupId);
-                    setMembers(mem);
+                    await refreshData();
                     setConfirmKick(null);
                   } catch(e) { console.error(e); }
                   finally { setActioning(null); }
