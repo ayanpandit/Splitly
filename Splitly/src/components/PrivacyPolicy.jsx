@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Shield, Eye, Lock, Database, UserCheck, AlertCircle, Calendar, Mail } from 'lucide-react';
 
 const PrivacyPolicy = () => {
+  const navigate = useNavigate();
   const sections = [
     {
       icon: <Database className="w-6 h-6" />,
@@ -59,12 +61,18 @@ const PrivacyPolicy = () => {
     {
       icon: <Mail className="w-5 h-5" />,
       title: "Contact",
-      value: "privacy@splitly.com"
+      value: "aayanpandey8528@gmail.com"
     }
   ];
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <div className="max-w-4xl mx-auto px-4 pt-8">
+        <button
+          className="mb-8 px-4 py-2 bg-teal-400 text-black rounded-lg font-semibold hover:bg-teal-300"
+          onClick={() => navigate('/')}
+        >Home</button>
+      </div>
       {/* Header */}
       <div className="bg-gradient-to-r from-black to-gray-900 px-4 py-8 sm:py-12">
         <div className="max-w-4xl mx-auto text-center">
@@ -392,40 +400,34 @@ const PrivacyPolicy = () => {
           </div>
         </div>
 
-        {/* California Privacy Rights */}
+        {/* India Privacy Rights */}
         <div className="mt-8 sm:mt-12">
           <div className="bg-gray-900 rounded-xl p-6 sm:p-8 border border-gray-800">
-            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-teal-400">California Privacy Rights (CCPA)</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-teal-400">India Privacy Rights</h2>
             <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-6">
-              If you are a California resident, you have additional rights under the California Consumer Privacy Act:
+              If you are an Indian resident, you have rights under the Information Technology Act and related privacy rules:
             </p>
-            
             <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
               <div className="p-4 bg-black rounded-lg border border-gray-700">
-                <h4 className="font-semibold mb-2 text-teal-400">Right to Know</h4>
+                <h4 className="font-semibold mb-2 text-teal-400">Right to Access</h4>
                 <p className="text-gray-400 text-sm">Request details about personal information we collect, use, and share</p>
               </div>
-              
               <div className="p-4 bg-black rounded-lg border border-gray-700">
-                <h4 className="font-semibold mb-2 text-teal-400">Right to Delete</h4>
-                <p className="text-gray-400 text-sm">Request deletion of your personal information (with some exceptions)</p>
+                <h4 className="font-semibold mb-2 text-teal-400">Right to Correction</h4>
+                <p className="text-gray-400 text-sm">Request corrections to your personal information</p>
               </div>
-              
               <div className="p-4 bg-black rounded-lg border border-gray-700">
-                <h4 className="font-semibold mb-2 text-teal-400">Right to Opt-Out</h4>
-                <p className="text-gray-400 text-sm">We don't sell personal information, so this right doesn't apply</p>
+                <h4 className="font-semibold mb-2 text-teal-400">Right to Deletion</h4>
+                <p className="text-gray-400 text-sm">Request deletion of your personal information (subject to legal requirements)</p>
               </div>
-              
               <div className="p-4 bg-black rounded-lg border border-gray-700">
-                <h4 className="font-semibold mb-2 text-teal-400">Non-Discrimination</h4>
-                <p className="text-gray-400 text-sm">We won't discriminate against you for exercising your privacy rights</p>
+                <h4 className="font-semibold mb-2 text-teal-400">Right to Grievance Redressal</h4>
+                <p className="text-gray-400 text-sm">Contact our Data Protection Officer for privacy concerns or complaints</p>
               </div>
             </div>
-            
             <div className="mt-6 p-4 bg-teal-400/10 border border-teal-400/20 rounded-lg">
               <p className="text-teal-400 text-sm">
-                <strong>To exercise these rights:</strong> Contact us at privacy@splitly.com with "California Privacy Request" 
-                in the subject line. We'll respond within 45 days.
+                <strong>To exercise these rights:</strong> Contact us at aayanpandey8528@gmail.com with "India Privacy Request" in the subject line. We'll respond within 30 days.
               </p>
             </div>
           </div>
@@ -452,43 +454,6 @@ const PrivacyPolicy = () => {
                 <div className="w-2 h-2 bg-teal-400 rounded-full flex-shrink-0 mt-2"></div>
                 <p className="text-gray-300 text-sm sm:text-base">No profiling or automated decisions that significantly affect you</p>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Contact Information for Privacy */}
-        <div className="mt-8 sm:mt-12">
-          <div className="bg-gray-900 rounded-xl p-6 sm:p-8 border border-gray-800">
-            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-teal-400">Privacy Contact Information</h2>
-            
-            <div className="grid gap-6 md:grid-cols-2">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Data Protection Officer</h3>
-                <div className="space-y-2 text-sm text-gray-300">
-                  <p>Email: privacy@splitly.com</p>
-                  <p>Response time: Within 72 hours</p>
-                  <p>For all privacy-related inquiries and requests</p>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Legal Department</h3>
-                <div className="space-y-2 text-sm text-gray-300">
-                  <p>Email: legal@splitly.com</p>
-                  <p>For legal notices and compliance matters</p>
-                  <p>Response time: Within 5 business days</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-6 p-4 bg-black rounded-lg border border-gray-700">
-              <h4 className="font-semibold mb-2">When contacting us, please include:</h4>
-              <ul className="text-gray-400 text-sm space-y-1">
-                <li>• Your registered email address</li>
-                <li>• Clear description of your request</li>
-                <li>• Any relevant account or group information</li>
-                <li>• Preferred method of response</li>
-              </ul>
             </div>
           </div>
         </div>

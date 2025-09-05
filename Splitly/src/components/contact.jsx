@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Mail, MessageSquare, Bug, Lightbulb, Send, MapPin, Clock, Phone } from 'lucide-react';
 
 const Contact = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -43,15 +45,17 @@ const Contact = () => {
       title: "Feature Requests",
       description: "Have an idea to make Splitly better? We'd love to hear it"
     },
-    {
-      icon: <Mail className="w-6 h-6" />,
-      title: "Business Inquiries",
-      description: "Partnership opportunities or business-related questions"
-    }
+  // Business Inquiries removed
   ];
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <div className="max-w-4xl mx-auto px-4 pt-8">
+        <button
+          className="mb-8 px-4 py-2 bg-teal-400 text-black rounded-lg font-semibold hover:bg-teal-300"
+          onClick={() => navigate('/')}
+        >Home</button>
+      </div>
       {/* Header */}
       <div className="bg-gradient-to-r from-black to-gray-900 px-4 py-8 sm:py-12">
         <div className="max-w-4xl mx-auto text-center">
@@ -192,7 +196,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold">Email Support</h4>
-                    <p className="text-gray-400 text-sm">support@splitly.com</p>
+                    <p className="text-gray-400 text-sm">aayanpandey8528@gmail.com</p>
                   </div>
                 </div>
 
@@ -212,7 +216,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold">Location</h4>
-                    <p className="text-gray-400 text-sm">Available Worldwide</p>
+                    <p className="text-gray-400 text-sm">Online Only</p>
                   </div>
                 </div>
               </div>
@@ -246,15 +250,30 @@ const Contact = () => {
               <p className="mb-6 opacity-80">Stay updated with new features and improvements</p>
               
               <div className="flex flex-wrap gap-3">
-                <button className="bg-black text-teal-400 px-4 py-2 rounded-lg font-medium hover:bg-gray-900 transition-colors">
-                  Twitter
-                </button>
-                <button className="bg-black text-teal-400 px-4 py-2 rounded-lg font-medium hover:bg-gray-900 transition-colors">
-                  LinkedIn
-                </button>
-                <button className="bg-black text-teal-400 px-4 py-2 rounded-lg font-medium hover:bg-gray-900 transition-colors">
-                  GitHub
-                </button>
+                <a
+                  href="https://twitter.com/ayanpandit_31"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-black text-teal-400 px-4 py-2 rounded-lg font-medium hover:bg-gray-900 transition-colors"
+                >Twitter</a>
+                <a
+                  href="https://www.linkedin.com/in/ayan-pandey-b66067296/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-black text-teal-400 px-4 py-2 rounded-lg font-medium hover:bg-gray-900 transition-colors"
+                >LinkedIn</a>
+                <a
+                  href="https://www.instagram.com/ayanpandit_31/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-black text-teal-400 px-4 py-2 rounded-lg font-medium hover:bg-gray-900 transition-colors"
+                >Instagram</a>
+                <a
+                  href="https://github.com/ayanpandit"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-black text-teal-400 px-4 py-2 rounded-lg font-medium hover:bg-gray-900 transition-colors"
+                >GitHub</a>
               </div>
             </div>
           </div>

@@ -6,6 +6,9 @@ import GroupDetail from './components/GroupDetail';
 import Expenses from './components/expense';
 import Settlements from './components/Settlements';
 import ProtectedRoute from './components/ProtectedRoute';
+import About from './components/about';
+import Contact from './components/contact';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
           <Settlements />
         </ProtectedRoute>
       } />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     </Routes>
   );
 }

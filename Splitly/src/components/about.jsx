@@ -1,9 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, Zap, Shield, Smartphone, Heart, Code } from 'lucide-react';
 
 const About = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-black text-white">
+      <div className="max-w-4xl mx-auto px-4 pt-8">
+        <button
+          className="mb-8 px-4 py-2 bg-teal-400 text-black rounded-lg font-semibold hover:bg-teal-300"
+          onClick={() => navigate('/')}
+        >Home</button>
+      </div>
       {/* Header */}
       <div className="bg-gradient-to-r from-black to-gray-900 px-4 py-8 sm:py-12">
         <div className="max-w-4xl mx-auto text-center">

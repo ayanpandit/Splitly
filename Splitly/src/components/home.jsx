@@ -1,7 +1,8 @@
 import React from 'react';
 import heroImage from '../assets/hero.webp';
 import logo from '../assets/logo.webp';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Instagram } from 'lucide-react';
 import Navigation from './Navigation';
 
 const Home = () => {
@@ -198,15 +199,21 @@ const Home = () => {
             </div>
             
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-8 text-sm sm:text-base">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">About</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a>
+              <Link to="/about" className="text-gray-400 hover:text-white transition-colors">About</Link>
+              <Link to="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link>
               <a href="#" className="text-gray-400 hover:text-white transition-colors">Mobile Apps</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
+              <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link>
             </div>
             
-            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-teal-400 rounded flex items-center justify-center">
-              <span className="text-gray-900 font-bold text-sm sm:text-base">?</span>
-            </div>
+            <a
+              href="https://www.instagram.com/ayanpandit_31/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-6 h-6 sm:w-8 sm:h-8 bg-teal-400 rounded flex items-center justify-center hover:bg-teal-500 transition-colors"
+              title="Instagram"
+            >
+              <Instagram className="text-gray-900" size={22} />
+            </a>
           </div>
         </div>
       </footer>
