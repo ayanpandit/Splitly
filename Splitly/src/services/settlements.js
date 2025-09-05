@@ -1,15 +1,13 @@
 import { supabase } from '../lib/supabase'
 
 export async function listFriendSettlements(groupId, userId) {
-  // 1. Fetch member ids
   const { data: gmRows, error: gmErr } = await supabase
     .from('group_members')
     .select('user_id')
     .eq('group_id', groupId)
   if (gmErr) throw gmErr
   const memberIds = (gmRows || []).map(r => r.user_id)
-  if (!memberIds.includes(userId)) return [] // safety
-  // Fetch profiles
+  if (!memberIds.includes(userId)) return []
   const { data: profs, error: profErr } = await supabase
     .from('profiles')
     .select('id, full_name, nickname, avatar')
@@ -23,57 +21,67 @@ export async function listFriendSettlements(groupId, userId) {
     avatar: profMap[id]?.avatar
   }))
 
-  // 2. Fetch expenses with shares
   const { data: expenses, error: expErr } = await supabase
     .from('expenses')
-    .select('id, amount, paid_by, expense_shares(id, user_id, share_amount)')
+    .select('id, amount, paid_by, created_at, expense_shares(id, user_id, share_amount)')
     .eq('group_id', groupId)
+    .order('created_at', { ascending: true })
   if (expErr) throw expErr
 
-  // 3. Compute per-user totals paid and owed (each payer also owes their share already represented in shares)
-  const paid = {}
-  const owed = {}
+  const debtMap = {}
+  function addDebt(from, to, amount) {
+    if (from === to) return
+    if (!debtMap[from]) debtMap[from] = {}
+    debtMap[from][to] = +((debtMap[from][to] || 0) + amount)
+  }
+  function reduceDebt(from, to, amount) {
+    // Only reduce existing debt; never create reverse debt from a settlement overpayment.
+    if (!debtMap[from] || !debtMap[from][to]) return
+    debtMap[from][to] -= amount
+    if (debtMap[from][to] <= 0) {
+      delete debtMap[from][to]
+    }
+  }
+
   expenses.forEach(e => {
-    paid[e.paid_by] = (paid[e.paid_by] || 0) + parseFloat(e.amount)
+    if (e.expense_shares.length === 1 && e.expense_shares[0].user_id !== e.paid_by) {
+      const s = e.expense_shares[0]
+      reduceDebt(e.paid_by, s.user_id, parseFloat(s.share_amount))
+      return
+    }
     e.expense_shares.forEach(s => {
-      owed[s.user_id] = (owed[s.user_id] || 0) + parseFloat(s.share_amount)
+      if (s.user_id === e.paid_by) return
+      addDebt(s.user_id, e.paid_by, parseFloat(s.share_amount))
     })
   })
 
-  // 4. Apply recorded settlements (reduce net owed between two users)
-  const { data: settlementsRows, error: setErr } = await supabase
+  const { data: settledRows, error: setErr } = await supabase
     .from('settlements')
     .select('from_user_id, to_user_id, amount')
     .eq('group_id', groupId)
   if (setErr) throw setErr
+  settledRows.forEach(r => reduceDebt(r.from_user_id, r.to_user_id, parseFloat(r.amount)))
 
-  // Adjust nets by settlements: from pays to => from's net increases, to's net decreases
-  // We'll apply after computing net
-
-  // 5. Build net for each member relative to current user
-  // netUser = paid[user] - owed[user]
-  const net = {}
-  memberList.forEach(m => {
-    net[m.id] = (paid[m.id] || 0) - (owed[m.id] || 0)
+  Object.keys(debtMap).forEach(a => {
+    Object.keys(debtMap[a]).forEach(b => {
+      if (debtMap[b] && debtMap[b][a]) {
+        if (debtMap[a][b] > debtMap[b][a]) {
+          debtMap[a][b] = +(debtMap[a][b] - debtMap[b][a]).toFixed(2)
+          delete debtMap[b][a]
+        } else if (debtMap[b][a] > debtMap[a][b]) {
+          debtMap[b][a] = +(debtMap[b][a] - debtMap[a][b]).toFixed(2)
+          delete debtMap[a][b]
+        } else { delete debtMap[a][b]; delete debtMap[b][a] }
+      }
+    })
   })
-  settlementsRows.forEach(r => {
-    const amt = parseFloat(r.amount)
-    net[r.from_user_id] = (net[r.from_user_id] || 0) + amt
-    net[r.to_user_id] = (net[r.to_user_id] || 0) - amt
-  })
 
-  const yourNet = net[userId] || 0
   const results = memberList.filter(m => m.id !== userId).map(m => {
-    const otherNet = net[m.id] || 0
-    let type = 'settled'
-    let amount = 0
-    if (yourNet > 0 && otherNet < 0) {
-      amount = Math.min(yourNet, -otherNet)
-      type = 'owes_you'
-    } else if (yourNet < 0 && otherNet > 0) {
-      amount = Math.min(-yourNet, otherNet)
-      type = 'you_owe'
-    }
+    const youOwe = (debtMap[userId] && debtMap[userId][m.id]) || 0
+    const theyOwe = (debtMap[m.id] && debtMap[m.id][userId]) || 0
+    let type = 'settled'; let amount = 0
+    if (youOwe > theyOwe) { type = 'you_owe'; amount = youOwe - theyOwe }
+    else if (theyOwe > youOwe) { type = 'owes_you'; amount = theyOwe - youOwe }
     return {
       id: m.id,
       nickname: m.nickname || m.full_name || 'User',
@@ -82,7 +90,8 @@ export async function listFriendSettlements(groupId, userId) {
       amount: +amount.toFixed(2),
       type
     }
-  })
+  }).filter(r => r.amount > 0.004 || r.type === 'settled')
+
   return results
 }
 
