@@ -1,6 +1,7 @@
 import './App.css';
 import { Routes, Route } from 'react-router-dom';
 import Home from './components/home';
+import MobileApp from './components/mobileapp';
 import Groups from './components/group';
 import GroupDetail from './components/GroupDetail';
 import Expenses from './components/expense';
@@ -37,6 +38,7 @@ function App() {
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+  <Route path="/mobile-app" element={<MobileApp />} />
     </Routes>
   );
 }

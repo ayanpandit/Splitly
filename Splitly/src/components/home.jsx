@@ -201,7 +201,7 @@ const Home = () => {
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-8 text-sm sm:text-base">
               <Link to="/about" className="text-gray-400 hover:text-white transition-colors">About</Link>
               <Link to="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Mobile Apps</a>
+              <Link to="/mobile-app" className="text-gray-400 hover:text-white transition-colors">Mobile App</Link>
               <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link>
             </div>
             
