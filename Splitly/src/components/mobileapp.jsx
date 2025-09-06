@@ -24,12 +24,13 @@ const MobileApp = () => {
 
   const handleDownload = () => {
     setIsDownloading(true);
-    // Create download link for the APK
-    const link = document.createElement('a');
-    link.href = '/assets/splitly.apk';
-    link.download = 'splitly.apk';
-    link.click();
-    
+    // Create download link for the APK from Google Drive
+  const link = document.createElement('a');
+  link.href = 'https://drive.google.com/uc?export=download&id=1uYPk14tEYCQVtxq96anJy-Yj05pHtPVz';
+  link.download = 'splitly.apk';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
     setTimeout(() => {
       setIsDownloading(false);
       setShowInstallSteps(true);
