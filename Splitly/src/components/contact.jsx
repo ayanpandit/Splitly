@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { sendContactEmail } from '../services/emailService';
 import { useNavigate } from 'react-router-dom';
 import { Mail, MessageSquare, Bug, Lightbulb, Send, MapPin, Clock, Phone } from 'lucide-react';
 
@@ -11,8 +12,10 @@ const Contact = () => {
     category: 'general',
     message: ''
   });
-
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState('');
+  const formRef = useRef(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -22,30 +25,27 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 3000);
+    setError('');
+    setIsSending(true);
+
+    try {
+  await sendContactEmail(formData);
+
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', subject: '', category: 'general', message: '' });
+      setTimeout(() => setIsSubmitted(false), 4000);
+    } catch (err) {
+      console.error(err);
+      setError('Sorry, there was a problem sending your message. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const contactReasons = [
-    {
-      icon: <MessageSquare className="w-6 h-6" />,
-      title: "General Support",
-      description: "Questions about using Splitly or account issues"
-    },
-    {
-      icon: <Bug className="w-6 h-6" />,
-      title: "Bug Reports",
-      description: "Found a bug? Let us know so we can fix it quickly"
-    },
-    {
-      icon: <Lightbulb className="w-6 h-6" />,
-      title: "Feature Requests",
-      description: "Have an idea to make Splitly better? We'd love to hear it"
-    },
-  // Business Inquiries removed
+    // Business Inquiries removed
   ];
 
   return (
@@ -103,7 +103,7 @@ const Contact = () => {
                 <p className="text-gray-400">Thank you for reaching out. We'll get back to you within 24 hours.</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="block text-sm font-medium mb-2">Name *</label>
@@ -139,9 +139,7 @@ const Contact = () => {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-black border border-gray-700 rounded-lg focus:border-teal-400 focus:outline-none text-white"
                   >
-                    <option value="general">General Support</option>
-                    <option value="bug">Bug Report</option>
-                    <option value="feature">Feature Request</option>
+                    {/* Removed General Support, Bug Report, and Feature Request options */}
                     <option value="business">Business Inquiry</option>
                   </select>
                 </div>
@@ -172,12 +170,17 @@ const Contact = () => {
                   ></textarea>
                 </div>
 
+                {error && (
+                  <p className="text-red-400 text-sm">{error}</p>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full bg-teal-400 text-black py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-teal-500 transition-colors flex items-center justify-center space-x-2"
+                  disabled={isSending}
+                  className="w-full bg-teal-400 text-black py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-teal-500 transition-colors flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <Send className="w-5 h-5" />
-                  <span>Send Message</span>
+                  <span>{isSending ? 'Sending…' : 'Send Message'}</span>
                 </button>
               </form>
             )}

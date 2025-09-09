@@ -514,23 +514,7 @@ const PrivacyPolicy = () => {
       </div>
 
       {/* Contact Footer */}
-      <div className="bg-gradient-to-r from-teal-400 to-teal-500 py-8 sm:py-12 mt-12">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-black mb-4">Questions About Your Privacy?</h2>
-          <p className="text-black/80 text-base sm:text-lg mb-6 max-w-2xl mx-auto">
-            We're here to help. Contact our privacy team if you have any questions, concerns, 
-            or requests regarding your personal information.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-black text-teal-400 px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-gray-900 transition-colors">
-              Contact Privacy Team
-            </button>
-            <button className="border-2 border-black text-black px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-black hover:text-teal-400 transition-colors">
-              Download Your Data
-            </button>
-          </div>
-        </div>
-      </div>
+  {/* Removed Questions About Your Privacy section */}
     </div>
   );
 }

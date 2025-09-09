@@ -1,6 +1,7 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Users, Zap, Shield, Smartphone, Heart, Code } from 'lucide-react';
+import logo from '../assets/logo.webp';
+import { useNavigate, Link } from 'react-router-dom';
+import { Users, Zap, Shield, Smartphone, Heart, Code, Instagram } from 'lucide-react';
 
 const About = () => {
   const navigate = useNavigate();
@@ -164,18 +165,36 @@ const About = () => {
         </div>
       </div>
 
-      {/* Footer CTA */}
-      <div className="bg-gradient-to-r from-teal-400 to-teal-500 py-8 sm:py-12 mt-12">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-black mb-4">Ready to Split Smarter?</h2>
-          <p className="text-black/80 text-base sm:text-lg mb-6">
-            Join thousands of users who've made expense sharing effortless with Splitly.
-          </p>
-          <button className="bg-black text-teal-400 px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-gray-900 transition-colors">
-            Get Started Now
-          </button>
+      {/* Footer */}
+      <footer className="px-4 sm:px-6 lg:px-8 py-8 sm:py-12 border-t border-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+            <div className="flex items-center space-x-2">
+              <img 
+                src={logo} 
+                alt="Splitly Logo" 
+                className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+              />
+              <span className="text-lg sm:text-xl font-semibold">Splitly</span>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-8 text-sm sm:text-base">
+              <Link to="/about" className="text-gray-400 hover:text-white transition-colors">About</Link>
+              <Link to="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link>
+              <Link to="/mobile-app" className="text-gray-400 hover:text-white transition-colors">Mobile App</Link>
+              <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link>
+            </div>
+            <a
+              href="https://www.instagram.com/ayanpandit_31/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-6 h-6 sm:w-8 sm:h-8 bg-teal-400 rounded flex items-center justify-center hover:bg-teal-500 transition-colors"
+              title="Instagram"
+            >
+              <Instagram className="text-gray-900" size={22} />
+            </a>
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
