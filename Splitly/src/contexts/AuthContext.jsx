@@ -166,6 +166,56 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  // Reset password function
+  const resetPassword = async (email) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
+      
+      if (error) throw error
+      return { error: null }
+    } catch (error) {
+      return { error }
+    }
+  }
+
+  // Sign in with OTP function
+  const signInWithOTP = async (email) => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false
+        }
+      })
+      
+      if (error) throw error
+      return { error: null }
+    } catch (error) {
+      return { error }
+    }
+  }
+
+  // Verify OTP function
+  const verifyOTP = async (email, token) => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: 'email'
+      })
+
+      if (error) throw error
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const value = {
     user,
     session,
@@ -173,7 +223,10 @@ export const AuthProvider = ({ children }) => {
     signUp,
     signIn,
     signOut,
-    updatePassword
+    updatePassword,
+    resetPassword,
+    signInWithOTP,
+    verifyOTP
   }
 
   return (
