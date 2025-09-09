@@ -1,0 +1,40 @@
+{
+  "expo": {
+  "name": "Splitly",
+  "slug": "Splitlyapk",
+    "version": "1.0.0",
+    "orientation": "portrait",
+  "icon": "./assets/images/logo.png",
+    "scheme": "splitly",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+  "image": "./assets/images/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.splitly.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cf6d13ef-317b-4a59-add5-ca29bbbd3724"
+      }
+    }
+  }
+}
