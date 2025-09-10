@@ -57,10 +57,12 @@ Open the file "supabase-schema.sql" copy all the content as it is and then
 ## Step 10:-
 Open the  Supabase and open  you project dashboard in the top right corner open the SQL editor and paste the code copied from the "supabase-schema.sql" now click run 
 ## Step 11-  
-you  will see an comfirmation.
+you  will see an comfirmation "Success. No rows returned.".
 # APK Setup:
 In the folder "Splitlyapk"> App.js , around line no.29 source={{ uri: "Your_deployment_link "}}
 replace it with you deployment link 
+# E-mail Setup:
+
 
 ---
 
